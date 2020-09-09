@@ -10,11 +10,6 @@
 
 #include <curses.priv.h>
 
-#undef vw_scanw
-#undef vwscanw
-
-#undef vw_printw
-#undef vwprintw
 extern int call_addch (const chtype z);
 int call_addch (const chtype z)
 {

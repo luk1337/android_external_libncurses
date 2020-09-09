@@ -1,6 +1,7 @@
-# $Id: Makefile.in,v 1.40 2015/08/05 23:15:41 tom Exp $
+# $Id: Makefile.in,v 1.43 2020/02/02 23:34:34 tom Exp $
 ##############################################################################
-# Copyright (c) 1998-2014,2015 Free Software Foundation, Inc.                #
+# Copyright 2018-2019,2020 Thomas E. Dickey                                  #
+# Copyright 1998-2014,2015 Free Software Foundation, Inc.                    #
 #                                                                            #
 # Permission is hereby granted, free of charge, to any person obtaining a    #
 # copy of this software and associated documentation files (the "Software"), #
@@ -41,8 +42,8 @@ TOP_MFLAGS =  DESTDIR="$(DESTDIR)" RPATH_LIST="$(RPATH_LIST)"
 
 
 NCURSES_MAJOR	= 6
-NCURSES_MINOR	= 1
-NCURSES_PATCH	= 20180127
+NCURSES_MINOR	= 2
+NCURSES_PATCH	= 20200212
 
 top_srcdir	= .
 srcdir		= .
@@ -83,6 +84,7 @@ preinstall :
 	@ echo '    include directory: '$(include_dir)
 	@ echo '        man directory: '$(mandir)
 	@ echo '   terminfo directory: '$(ticdir)
+#	@ echo '  using fallback-list: '
 #	@ echo ' pkg-config directory: '$(pkgdir)
 	@ echo ''
 	@ test "$(include_dir)" = "$(prefix)/include" || \
@@ -96,6 +98,9 @@ preinstall :
 
 distclean \
 realclean ::
+
+check:
+	@ echo The test-programs are interactive
 
 
 # Put the common rules here so that we can easily construct the list of

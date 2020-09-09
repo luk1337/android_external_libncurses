@@ -1,6 +1,7 @@
-# $Id: Makefile.in,v 1.68 2017/12/31 20:34:42 tom Exp $
+# $Id: Makefile.in,v 1.73 2020/02/02 23:34:34 tom Exp $
 ##############################################################################
-# Copyright (c) 1998-2016,2017 Free Software Foundation, Inc.                #
+# Copyright 2018-2019,2020 Thomas E. Dickey                                  #
+# Copyright 1998-2016,2017 Free Software Foundation, Inc.                    #
 #                                                                            #
 # Permission is hereby granted, free of charge, to any person obtaining a    #
 # copy of this software and associated documentation files (the "Software"), #
@@ -76,13 +77,16 @@ PKG_CONFIG_LIBDIR = /usr/share/pkgconfig
 
 ################################################################################
 all \
+sources ::
+
+all \
 sources :: terminfo.tmp 
 
 depend :
 
-install : install.data install.libs
+install :: install.data
 
-install.data :	terminfo.tmp \
+install.data ::	terminfo.tmp \
 		$(DESTDIR)$(libdir) \
 		$(DESTDIR)$(datadir) \
 		$(DESTDIR)$(tabsetdir)
@@ -103,20 +107,35 @@ install.data :	terminfo.tmp \
 			echo installing $$i; \
 			$(INSTALL_DATA) $$i $(DESTDIR)$(tabsetdir)/$$i; \
 			fi; done'
+install.data ::
+	@echo "finished $@"
 
 NCURSES_CONFIG	= ncurses6-config
 
+install \
 install.libs :: $(DESTDIR)$(bindir) ncurses-config
 	$(INSTALL_SCRIPT) ncurses-config $(DESTDIR)$(bindir)/$(NCURSES_CONFIG)
+
+# Make a list of the files that gen-pkgconfig might create:
+#PC_FILES = \
+#	ncurses.pc \
+#	ncurses.pc \
+#	tic.pc \
+#	panel.pc \
+#	menu.pc \
+#	form.pc \
+#	ncurses++.pc
 
 # some packagers prefer to be able to construct pc-files on servers where
 # pkg-config is not installed.  Work around that by creating the library
 # directory during this rule:
+#install \
 #install.libs :: pc-files
 #	@$(SHELL) -c 'case "x$(DESTDIR)$(PKG_CONFIG_LIBDIR)" in \
 #		(x/*) \
 #			mkdir -p $(DESTDIR)$(PKG_CONFIG_LIBDIR); \
-#			for name in *.pc; do \
+#			for name in $(PC_FILES); do \
+#				test -f $$name || continue; \
 #				echo installing $$name; \
 #				$(INSTALL_DATA) $$name $(DESTDIR)$(PKG_CONFIG_LIBDIR)/$$name; \
 #			done \
@@ -130,7 +149,7 @@ install.libs :: $(DESTDIR)$(bindir) ncurses-config
 #sources :: pc-files
 #pc-files :
 #	$(SHELL) ./gen-pkgconfig
-#	touch $@
+#	-touch $@
 
 terminfo.tmp : run_tic.sed $(source)
 	echo '** adjusting tabset paths'
@@ -158,13 +177,14 @@ uninstall.data :
 uninstall.libs :
 	-rm -f $(DESTDIR)$(bindir)/$(NCURSES_CONFIG)
 #	@$(SHELL) -c 'case x$(DESTDIR)$(PKG_CONFIG_LIBDIR) in \
-	(x/*) \
-		for name in *.pc; do \
-			echo uninstalling $$name; \
-			rm -f $(DESTDIR)$(PKG_CONFIG_LIBDIR)/$$name; \
-		done \
-		;; \
-	esac'
+#	(x/*) \
+#		for name in $(PC_FILES); do \
+#			test -f $$name || continue; \
+#			echo uninstalling $$name; \
+#			rm -f $(DESTDIR)$(PKG_CONFIG_LIBDIR)/$$name; \
+#		done \
+#		;; \
+#	esac'
 
 tags :
 
@@ -173,7 +193,7 @@ tags :
 mostlyclean :
 	-rm -f terminfo.tmp
 	-rm -f run_tic.sed
-#	-rm -f *.pc pc-files
+#	-rm -f pc-files $(PC_FILES)
 	-rm -f core tags TAGS *~ *.bak *.ln *.atac trace
 
 clean :: mostlyclean

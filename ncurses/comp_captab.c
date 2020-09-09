@@ -12,6 +12,7 @@
 #include <tic.h>
 #include <hashsize.h>
 
+/* *INDENT-OFF* */
 /* 147 collisions out of 497 entries */
 static const char info_names_text[] = \
 "bw\0" "am\0" "xsb\0" "xhp\0" "xenl\0" "eo\0" "gn\0" "hc\0" "km\0" \
@@ -3266,6 +3267,7 @@ static const alias_table_data infoalias_data[] = {
 	{   75,    80,    85},	 /* key_select */
 };
 
+/* *INDENT-ON* */
 
 #if 1
 static void
@@ -3276,7 +3278,7 @@ next_string(const char *strings, unsigned *offset)
 
 static const struct name_table_entry *
 _nc_build_names(struct name_table_entry **actual,
-		const name_table_data *source,
+		const name_table_data * source,
 		const char *strings)
 {
     if (*actual == 0) {
@@ -3303,7 +3305,7 @@ _nc_build_names(struct name_table_entry **actual,
 
 static const struct alias *
 _nc_build_alias(struct alias **actual,
-		const alias_table_data *source,
+		const alias_table_data * source,
 		const char *strings,
 		size_t tablesize)
 {
@@ -3333,20 +3335,23 @@ _nc_build_alias(struct alias **actual,
 #define build_alias(root) _nc_ ## root ## alias_table
 #endif
 
-NCURSES_EXPORT(const struct name_table_entry *) _nc_get_table (bool termcap)
+NCURSES_EXPORT(const struct name_table_entry *)
+_nc_get_table(bool termcap)
 {
-    return termcap ? build_names(cap) : build_names(info) ;
+    return termcap ? build_names(cap) : build_names(info);
 }
 
-/* entrypoint used by tack (do not alter) */
-NCURSES_EXPORT(const HashValue *) _nc_get_hash_table (bool termcap)
+/* entrypoint used by tack 1.07 */
+NCURSES_EXPORT(const HashValue *)
+_nc_get_hash_table(bool termcap)
 {
-    return termcap ? _nc_cap_hash_table: _nc_info_hash_table ;
+    return termcap ? _nc_cap_hash_table : _nc_info_hash_table;
 }
 
-NCURSES_EXPORT(const struct alias *) _nc_get_alias_table (bool termcap)
+NCURSES_EXPORT(const struct alias *)
+_nc_get_alias_table(bool termcap)
 {
-    return termcap ? build_alias(cap) : build_alias(info) ;
+    return termcap ? build_alias(cap) : build_alias(info);
 }
 
 static HashValue
@@ -3356,7 +3361,7 @@ info_hash(const char *string)
 
     DEBUG(9, ("hashing %s", string));
     while (*string) {
-	sum += (long) (*string + (*(string + 1) << 8));
+	sum += (long) (UChar(*string) + (UChar(*(string + 1)) << 8));
 	string++;
     }
 
@@ -3393,18 +3398,21 @@ compare_info_names(const char *a, const char *b)
     return !strcmp(a, b);
 }
 
-static const HashData hash_data[2] = {
-    { HASHTABSIZE, _nc_info_hash_table, info_hash, compare_info_names },
-    { HASHTABSIZE, _nc_cap_hash_table, tcap_hash, compare_tcap_names }
+static const HashData hash_data[2] =
+{
+    {HASHTABSIZE, _nc_info_hash_table, info_hash, compare_info_names},
+    {HASHTABSIZE, _nc_cap_hash_table, tcap_hash, compare_tcap_names}
 };
 
-NCURSES_EXPORT(const HashData *) _nc_get_hash_info (bool termcap)
+NCURSES_EXPORT(const HashData *)
+_nc_get_hash_info(bool termcap)
 {
     return &hash_data[(termcap != FALSE)];
 }
 
 #if NO_LEAKS
-NCURSES_EXPORT(void) _nc_comp_captab_leaks(void)
+NCURSES_EXPORT(void)
+_nc_comp_captab_leaks(void)
 {
 #if 1
     FreeIfNeeded(_nc_cap_table);

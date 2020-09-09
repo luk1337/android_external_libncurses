@@ -1,6 +1,7 @@
-# $Id: Makefile.in,v 1.70 2018/01/15 19:28:45 tom Exp $
+# $Id: Makefile.in,v 1.71 2020/02/02 23:34:34 tom Exp $
 ##############################################################################
-# Copyright (c) 1998-2015,2018 Free Software Foundation, Inc.                #
+# Copyright 2020 Thomas E. Dickey                                            #
+# Copyright 1998-2015,2018 Free Software Foundation, Inc.                    #
 #                                                                            #
 # Permission is hereby granted, free of charge, to any person obtaining a    #
 # copy of this software and associated documentation files (the "Software"), #
@@ -76,7 +77,7 @@ LIBTOOL_UNINSTALL =
 LT_UNDEF	= 
 
 INSTALL		= /usr/bin/install -c
-INSTALL_LIB	= /usr/bin/install -c -m 644
+INSTALL_LIB	= /usr/bin/install -c -m 644 -p
 INSTALL_PROG	= ${INSTALL} -s
 INSTALL_DATA	= ${INSTALL} -m 644
 
@@ -93,7 +94,7 @@ CC		= gcc
 CPP		= gcc -E
 CFLAGS		= -O2 --param max-inline-insns-single=1200
 
-CPPFLAGS	= -I${top_srcdir}/ncurses -DHAVE_CONFIG_H -I. -I../include  -D_GNU_SOURCE -D_DEFAULT_SOURCE -DNDEBUG
+CPPFLAGS	= -I${top_srcdir}/ncurses -DHAVE_CONFIG_H -I. -I../include -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=600 -DNDEBUG
 
 CCFLAGS		= $(CPPFLAGS) $(CFLAGS)
 
@@ -117,8 +118,8 @@ VERSIONED_SYMS	=
 MK_SHARED_LIB	= ${CC} ${LDFLAGS} ${CFLAGS} -shared -Wl,-soname,`basename $@ .${REL_VERSION}`.${ABI_VERSION},-stats,-lc -o $@
 
 NCURSES_MAJOR	= 6
-NCURSES_MINOR	= 1
-REL_VERSION	= 6.1
+NCURSES_MINOR	= 2
+REL_VERSION	= 6.2
 ABI_VERSION	= 6
 
 RANLIB		= ranlib
@@ -262,6 +263,7 @@ lint ::
 #  TermlibRoot:   ncurses
 #  TermlibSuffix: .a
 #  ReLink:        no
+#  ReRanlib:      no
 #  DoLinks:       yes
 #  rmSoLocs:      no
 #  ldconfig:      /usr/sbin/ldconfig
@@ -289,6 +291,7 @@ NORMAL_OBJS = \
 $(NORMAL_OBJS) : ../include/ncurses_cfg.h ./panel.priv.h
 
 ../lib/libpanel.a : $(NORMAL_OBJS)
+	@sleep 1
 	$(AR) $(ARFLAGS) $@ $?
 	$(RANLIB) $@
 
@@ -297,7 +300,6 @@ install.libs \
 install.panel :: $(DESTDIR)$(libdir) ../lib/libpanel.a
 	@echo installing ../lib/libpanel.a as $(DESTDIR)$(libdir)/libpanel.a
 	$(INSTALL_DATA) ../lib/libpanel.a $(DESTDIR)$(libdir)/libpanel.a
-	$(RANLIB) $(DESTDIR)$(libdir)/libpanel.a
 
 uninstall \
 uninstall.libs \
@@ -398,6 +400,7 @@ mostlyclean::
 #  TermlibRoot:   ncurses
 #  TermlibSuffix: .a
 #  ReLink:        no
+#  ReRanlib:      no
 #  DoLinks:       yes
 #  rmSoLocs:      no
 #  ldconfig:      /usr/sbin/ldconfig
@@ -425,6 +428,7 @@ DEBUG_OBJS = \
 $(DEBUG_OBJS) : ../include/ncurses_cfg.h ./panel.priv.h
 
 ../lib/libpanel_g.a : $(DEBUG_OBJS)
+	@sleep 1
 	$(AR) $(ARFLAGS) $@ $?
 	$(RANLIB) $@
 
@@ -433,7 +437,6 @@ install.libs \
 install.panel :: $(DESTDIR)$(libdir) ../lib/libpanel_g.a
 	@echo installing ../lib/libpanel_g.a as $(DESTDIR)$(libdir)/libpanel_g.a
 	$(INSTALL_DATA) ../lib/libpanel_g.a $(DESTDIR)$(libdir)/libpanel_g.a
-	$(RANLIB) $(DESTDIR)$(libdir)/libpanel_g.a
 
 uninstall \
 uninstall.libs \

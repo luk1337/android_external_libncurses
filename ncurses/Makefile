@@ -1,6 +1,7 @@
-# $Id: Makefile.in,v 1.155 2018/01/15 19:28:45 tom Exp $
+# $Id: Makefile.in,v 1.168 2020/02/02 23:34:34 tom Exp $
 ##############################################################################
-# Copyright (c) 1998-2017,2018 Free Software Foundation, Inc.                #
+# Copyright 2018-2019,2020 Thomas E. Dickey                                  #
+# Copyright 1998-2017,2018 Free Software Foundation, Inc.                    #
 #                                                                            #
 # Permission is hereby granted, free of charge, to any person obtaining a    #
 # copy of this software and associated documentation files (the "Software"), #
@@ -82,7 +83,7 @@ LIBTOOL_UNINSTALL =
 LT_UNDEF	= 
 
 INSTALL		= /usr/bin/install -c
-INSTALL_LIB	= /usr/bin/install -c -m 644
+INSTALL_LIB	= /usr/bin/install -c -m 644 -p
 INSTALL_PROG	= ${INSTALL} -s
 INSTALL_DATA	= ${INSTALL} -m 644
 
@@ -101,7 +102,7 @@ CPP		= gcc -E
 CFLAGS		= -O2 --param max-inline-insns-single=1200
 
 INCDIR		= $(srcdir)/../include
-CPPFLAGS	= -DHAVE_CONFIG_H -I../ncurses -I. -I../include  -D_GNU_SOURCE -D_DEFAULT_SOURCE -DNDEBUG
+CPPFLAGS	= -DHAVE_CONFIG_H -I../ncurses -I. -I../include -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=600 -DNDEBUG
 
 CCFLAGS		= $(CPPFLAGS) $(CFLAGS)
 
@@ -126,12 +127,12 @@ CFLAGS_SHARED	= $(CCFLAGS) -fPIC
 CFLAGS_DEFAULT	= $(CFLAGS_NORMAL)
 
 LINK		= $(LIBTOOL)
-LDFLAGS		=   
+LDFLAGS		=  
 
 SHLIB_DIRS	= -L../lib
-SHLIB_LIST	= $(SHLIB_DIRS) 
-TINFO_LIST	= $(SHLIB_DIRS) 
-TICS_LIST	= $(SHLIB_DIRS) 
+SHLIB_LIST	= $(SHLIB_DIRS)  
+TINFO_LIST	= $(SHLIB_DIRS)  
+TICS_LIST	= $(SHLIB_DIRS)  
 
 RPATH_LIST	= ${libdir}
 RESULTING_SYMS	= 
@@ -139,8 +140,8 @@ VERSIONED_SYMS	=
 MK_SHARED_LIB	= ${CC} ${LDFLAGS} ${CFLAGS} -shared -Wl,-soname,`basename $@ .${REL_VERSION}`.${ABI_VERSION},-stats,-lc -o $@
 
 NCURSES_MAJOR	= 6
-NCURSES_MINOR	= 1
-REL_VERSION	= 6.1
+NCURSES_MINOR	= 2
+REL_VERSION	= 6.2
 ABI_VERSION	= 6
 
 RANLIB		= ranlib
@@ -155,14 +156,17 @@ FALLBACK_LIST	=
 
 USE_BIG_STRINGS	= 1
 TERMINFO_CAPS	= $(top_srcdir)/include/Caps
+CAPLIST		= $(TERMINFO_CAPS) $(top_srcdir)/include/Caps-ncurses
 
 TERMINFO	= /system/etc/terminfo
 TERMINFO_SRC	= ${top_srcdir}/misc/terminfo.src
-TIC_PATH	= /usr/bin/tic
+TIC_PATH	= tic
+INFOCMP_PATH	= infocmp
 
 AUTO_SRC = \
 	./codes.c \
 	./comp_captab.c \
+	./comp_userdefs.c \
 	./expanded.c \
 	./fallback.c \
 	./lib_gen.c \
@@ -192,9 +196,10 @@ TEST_LDFLAGS	=  $(TEST_ARGS)
 TEST_PROGS = \
 	captoinfo$x \
 	hardscroll$x \
-	link_test$x \
 	hashmap$x \
-	lib_mvcur$x
+	lib_mvcur$x \
+	link_test$x \
+	report_hashing$x
 
 LOCAL_LIBDIR	= /mnt/ssd-2/lineage-18.0/external/libncurses/lib
 
@@ -219,7 +224,7 @@ $(DESTDIR)$(libdir) :
 ../lib : ; mkdir $@
 
 ./fallback.c : $(tinfo)/MKfallback.sh
-	$(SHELL) -e $(tinfo)/MKfallback.sh $(TERMINFO) $(TERMINFO_SRC) $(TIC_PATH) $(FALLBACK_LIST) >$@
+	$(SHELL) -e $(tinfo)/MKfallback.sh $(TERMINFO) $(TERMINFO_SRC) $(TIC_PATH) $(INFOCMP_PATH) $(FALLBACK_LIST) >$@
 
 ./lib_gen.c : $(base)/MKlib_gen.sh ../include/curses.h
 	$(SHELL) -e $(base)/MKlib_gen.sh "$(CPP) $(CPPFLAGS)" "$(AWK)" generated <../include/curses.h >$@
@@ -228,19 +233,22 @@ init_keytry.h: make_keys$(BUILD_EXEEXT) keys.list
 	./make_keys$(BUILD_EXEEXT) keys.list > $@
 
 keys.list :	$(tinfo)/MKkeys_list.sh
-	AWK=$(AWK) $(SHELL) $(tinfo)/MKkeys_list.sh $(TERMINFO_CAPS) | LC_ALL=C sort >$@
+	AWK=$(AWK) $(SHELL) $(tinfo)/MKkeys_list.sh $(CAPLIST) | LC_ALL=C sort >$@
 
 make_keys$(BUILD_EXEEXT) : \
+		build.priv.h \
 		$(tinfo)/make_keys.c \
 		names.c
 	$(BUILD_CC) -o $@ $(BUILD_CPPFLAGS) $(BUILD_CCFLAGS) $(tinfo)/make_keys.c $(BUILD_LDFLAGS) $(BUILD_LIBS)
 
 make_hash$(BUILD_EXEEXT) : \
+		build.priv.h \
 		$(tinfo)/make_hash.c \
 		../include/hashsize.h
 	$(BUILD_CC) -o $@ $(BUILD_CPPFLAGS) $(BUILD_CCFLAGS) $(tinfo)/make_hash.c $(BUILD_LDFLAGS) $(BUILD_LIBS)
 
 report_offsets$(BUILD_EXEEXT) : \
+		$(srcdir)/curses.priv.h \
 		$(srcdir)/report_offsets.c
 	$(BUILD_CC) -o $@ $(BUILD_CPPFLAGS) $(BUILD_CCFLAGS) $(srcdir)/report_offsets.c $(BUILD_LDFLAGS) $(BUILD_LIBS)
 	./report_offsets$(BUILD_EXEEXT)
@@ -253,16 +261,22 @@ report_offsets$(BUILD_EXEEXT) : \
 		../include/hashsize.h \
 		$(tinfo)/MKcaptab.sh \
 		$(tinfo)/MKcaptab.awk
-	$(SHELL) -e $(tinfo)/MKcaptab.sh $(AWK) $(USE_BIG_STRINGS) $(tinfo)/MKcaptab.awk $(srcdir)/../include/Caps > $@
+	$(SHELL) -e $(tinfo)/MKcaptab.sh $(AWK) $(USE_BIG_STRINGS) $(tinfo)/MKcaptab.awk $(CAPLIST) > $@
+
+./comp_userdefs.c: \
+		make_hash$(BUILD_EXEEXT) \
+		../include/hashsize.h \
+		$(tinfo)/MKuserdefs.sh
+	$(SHELL) -e $(tinfo)/MKuserdefs.sh $(AWK) $(USE_BIG_STRINGS) $(CAPLIST) > $@
 
 ./lib_keyname.c: keys.list $(base)/MKkeyname.awk
 	$(AWK) -f $(base)/MKkeyname.awk bigstrings=$(USE_BIG_STRINGS) keys.list > $@
 
 ./codes.c: $(tinfo)/MKcodes.awk
-	$(AWK) -f $(tinfo)/MKcodes.awk bigstrings=$(USE_BIG_STRINGS) $(srcdir)/../include/Caps >$@
+	$(AWK) -f $(tinfo)/MKcodes.awk bigstrings=$(USE_BIG_STRINGS) $(CAPLIST) >$@
 
 ./names.c: $(tinfo)/MKnames.awk
-	$(AWK) -f $(tinfo)/MKnames.awk bigstrings=$(USE_BIG_STRINGS) $(srcdir)/../include/Caps >$@
+	$(AWK) -f $(tinfo)/MKnames.awk bigstrings=$(USE_BIG_STRINGS) $(CAPLIST) >$@
 
 ./unctrl.c: $(base)/MKunctrl.awk
 	echo | $(AWK) -f $(base)/MKunctrl.awk bigstrings=$(USE_BIG_STRINGS) >$@
@@ -321,6 +335,11 @@ link_test$x : ./link_test.c $(TEST_DEPS) \
 
 ../objects/dump_entry$o:
 	cd ../progs && $(MAKE) ../objects/dump_entry$o
+
+report_hashing$x : \
+		$(srcdir)/curses.priv.h \
+		$(srcdir)/report_hashing.c $(TEST_DEPS)
+	 $(CC) -o $@ $(CFLAGS_DEFAULT) report_hashing.c $(TEST_LDFLAGS)
 
 ###############################################################################
 # The remainder of this file is automatically generated during configuration
@@ -447,6 +466,7 @@ C_SRC = \
 	./comp_captab.c \
 	$(tinfo)/comp_error.c \
 	$(tinfo)/comp_hash.c \
+	./comp_userdefs.c \
 	$(tinfo)/db_iterator.c \
 	$(tinfo)/doalloc.c \
 	$(tinfo)/entries.c \
@@ -608,6 +628,7 @@ NCURSES_SRC = \
 	./comp_captab.c \
 	$(tinfo)/comp_error.c \
 	$(tinfo)/comp_hash.c \
+	./comp_userdefs.c \
 	$(tinfo)/db_iterator.c \
 	$(tinfo)/doalloc.c \
 	$(tinfo)/entries.c \
@@ -697,6 +718,7 @@ lint ::
 #  TermlibRoot:   ncurses
 #  TermlibSuffix: .a
 #  ReLink:        no
+#  ReRanlib:      no
 #  DoLinks:       yes
 #  rmSoLocs:      no
 #  ldconfig:      /usr/sbin/ldconfig
@@ -801,6 +823,7 @@ NORMAL_OBJS = \
 	../objects/comp_captab$o \
 	../objects/comp_error$o \
 	../objects/comp_hash$o \
+	../objects/comp_userdefs$o \
 	../objects/db_iterator$o \
 	../objects/doalloc$o \
 	../objects/entries$o \
@@ -857,6 +880,7 @@ NORMAL_OBJS = \
 $(NORMAL_OBJS) : ../include/ncurses_cfg.h ./curses.priv.h
 
 ../lib/libncurses.a : $(NORMAL_OBJS)
+	@sleep 1
 	$(AR) $(ARFLAGS) $@ $?
 	$(RANLIB) $@
 
@@ -868,7 +892,6 @@ install.ncurses :: $(DESTDIR)$(libdir) ../lib/libncurses.a
 	@echo linking libcurses.a to libncurses.a
 	-@rm -f $(DESTDIR)$(libdir)/libcurses.a
 	(cd $(DESTDIR)$(libdir) && $(LN_S) libncurses.a libcurses.a; )
-	$(RANLIB) $(DESTDIR)$(libdir)/libncurses.a
 
 uninstall \
 uninstall.libs \
@@ -1301,6 +1324,12 @@ mostlyclean::
 			../include/hashsize.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../ncurses/$(tinfo)/comp_hash.c -o ../objects/comp_hash$o
 
+../objects/comp_userdefs$o :	./comp_userdefs.c \
+			$(HEADER_DEPS) \
+			$(INCDIR)/tic.h \
+			../include/hashsize.h
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../ncurses/comp_userdefs.c -o ../objects/comp_userdefs$o
+
 ../objects/db_iterator$o :	$(tinfo)/db_iterator.c \
 			$(HEADER_DEPS) \
 			$(INCDIR)/tic.h
@@ -1562,6 +1591,7 @@ mostlyclean::
 #  TermlibRoot:   ncurses
 #  TermlibSuffix: .a
 #  ReLink:        no
+#  ReRanlib:      no
 #  DoLinks:       yes
 #  rmSoLocs:      no
 #  ldconfig:      /usr/sbin/ldconfig
@@ -1669,6 +1699,7 @@ DEBUG_OBJS = \
 	../obj_g/comp_captab$o \
 	../obj_g/comp_error$o \
 	../obj_g/comp_hash$o \
+	../obj_g/comp_userdefs$o \
 	../obj_g/db_iterator$o \
 	../obj_g/doalloc$o \
 	../obj_g/entries$o \
@@ -1730,6 +1761,7 @@ DEBUG_OBJS = \
 $(DEBUG_OBJS) : ../include/ncurses_cfg.h ./curses.priv.h
 
 ../lib/libncurses_g.a : $(DEBUG_OBJS)
+	@sleep 1
 	$(AR) $(ARFLAGS) $@ $?
 	$(RANLIB) $@
 
@@ -1738,7 +1770,6 @@ install.libs \
 install.ncurses :: $(DESTDIR)$(libdir) ../lib/libncurses_g.a
 	@echo installing ../lib/libncurses_g.a as $(DESTDIR)$(libdir)/libncurses_g.a
 	$(INSTALL_DATA) ../lib/libncurses_g.a $(DESTDIR)$(libdir)/libncurses_g.a
-	$(RANLIB) $(DESTDIR)$(libdir)/libncurses_g.a
 
 uninstall \
 uninstall.libs \
@@ -2180,6 +2211,12 @@ mostlyclean::
 			$(INCDIR)/tic.h \
 			../include/hashsize.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../ncurses/$(tinfo)/comp_hash.c -o ../obj_g/comp_hash$o
+
+../obj_g/comp_userdefs$o :	./comp_userdefs.c \
+			$(HEADER_DEPS) \
+			$(INCDIR)/tic.h \
+			../include/hashsize.h
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../ncurses/comp_userdefs.c -o ../obj_g/comp_userdefs$o
 
 ../obj_g/db_iterator$o :	$(tinfo)/db_iterator.c \
 			$(HEADER_DEPS) \

@@ -12,6 +12,7 @@ LOCAL_SRC_FILES += ncurses/trace/lib_trace.c \
 		ncurses/trace/visbuf.c \
 		ncurses/codes.c \
 		ncurses/comp_captab.c \
+		ncurses/comp_userdefs.c \
 		ncurses/expanded.c \
 		ncurses/fallback.c \
 		ncurses/lib_gen.c \

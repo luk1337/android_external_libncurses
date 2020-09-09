@@ -1,6 +1,7 @@
-# $Id: Makefile.in,v 1.102 2018/01/15 19:28:45 tom Exp $
+# $Id: Makefile.in,v 1.103 2020/02/02 23:34:34 tom Exp $
 ##############################################################################
-# Copyright (c) 1998-2016,2018 Free Software Foundation, Inc.                #
+# Copyright 2020 Thomas E. Dickey                                            #
+# Copyright 1998-2016,2018 Free Software Foundation, Inc.                    #
 #                                                                            #
 # Permission is hereby granted, free of charge, to any person obtaining a    #
 # copy of this software and associated documentation files (the "Software"), #
@@ -92,7 +93,7 @@ CPP		= gcc -E
 CFLAGS		= -O2 --param max-inline-insns-single=1200
 
 INCDIR		= $(top_srcdir)/include
-CPPFLAGS	= -DHAVE_CONFIG_H -I../progs -I. -I../include  -D_GNU_SOURCE -D_DEFAULT_SOURCE -DNDEBUG
+CPPFLAGS	= -DHAVE_CONFIG_H -I../progs -I. -I../include -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=600 -DNDEBUG
 
 CCFLAGS		= $(CPPFLAGS) $(CFLAGS)
 
@@ -104,7 +105,7 @@ CFLAGS_SHARED	= $(CCFLAGS) -fPIC
 
 CFLAGS_DEFAULT	= $(CFLAGS_NORMAL)
 
-REL_VERSION	= 6.1
+REL_VERSION	= 6.2
 ABI_VERSION	= 6
 LOCAL_LIBDIR	= /mnt/ssd-2/lineage-18.0/external/libncurses/lib
 
@@ -392,6 +393,7 @@ lintlib :
 #  TermlibRoot:   ncurses
 #  TermlibSuffix: .a
 #  ReLink:        no
+#  ReRanlib:      no
 #  DoLinks:       yes
 #  rmSoLocs:      no
 #  ldconfig:      /usr/sbin/ldconfig
@@ -528,6 +530,7 @@ clean ::
 #  TermlibRoot:   ncurses
 #  TermlibSuffix: .a
 #  ReLink:        no
+#  ReRanlib:      no
 #  DoLinks:       yes
 #  rmSoLocs:      no
 #  ldconfig:      /usr/sbin/ldconfig

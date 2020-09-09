@@ -1,6 +1,7 @@
-# $Id: Makefile.in,v 1.114 2016/05/21 23:26:12 tom Exp $
+# $Id: Makefile.in,v 1.119 2020/02/02 23:34:34 tom Exp $
 ##############################################################################
-# Copyright (c) 1998-2015,2016 Free Software Foundation, Inc.                #
+# Copyright 2018,2020 Thomas E. Dickey                                       #
+# Copyright 1998-2015,2016 Free Software Foundation, Inc.                    #
 #                                                                            #
 # Permission is hereby granted, free of charge, to any person obtaining a    #
 # copy of this software and associated documentation files (the "Software"), #
@@ -67,9 +68,10 @@ LIBTOOL_UNINSTALL =
 LIBTOOL_VERSION = -version-number
 LT_UNDEF	= 
 
-INSTALL		= /usr/bin/install -c
-INSTALL_LIB	= /usr/bin/install -c -m 644
+INSTALL		= /usr/bin/install -c 
+INSTALL_LIB	= $(INSTALL) -m 644 -p
 INSTALL_DATA	= ${INSTALL} -m 644
+INSTALL_OPT_P	= -p
 
 AR		= ar
 ARFLAGS		= -curvU
@@ -87,7 +89,7 @@ CXXFLAGS	= -O2
 CXXLIBS		= 
 
 INCDIR		= ../include
-CPPFLAGS	= -DHAVE_CONFIG_H -I../c++ -I. -I../include  -D_GNU_SOURCE -D_DEFAULT_SOURCE -DNDEBUG
+CPPFLAGS	= -DHAVE_CONFIG_H -I../c++ -I. -I../include -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=600 -DNDEBUG
 
 CTAGS		= ctags
 ETAGS		= 
@@ -104,8 +106,8 @@ CFLAGS_SHARED	= $(CCFLAGS) -fPIC
 CFLAGS_DEFAULT	= $(CFLAGS_NORMAL)
 
 NCURSES_MAJOR	= 6
-NCURSES_MINOR	= 1
-REL_VERSION     = 6.1
+NCURSES_MINOR	= 2
+REL_VERSION     = 6.2
 ABI_VERSION	= 6
 
 LOCAL_LIBDIR	= /mnt/ssd-2/lineage-18.0/external/libncurses/lib
@@ -133,7 +135,7 @@ LINK_PROFILE	= $(LINK_FLAGS)
 LINK_SHARED	= $(LINK_FLAGS)
 
 # flags for test-programs
-TEST_LIBS	= -lutil
+TEST_LIBS	= -lutil 
 TEST_ARGS	=  -L../lib -lform -lmenu -lpanel -lncurses   
 TEST_LDFLAGS	= $(TEST_ARGS)  \
 	 $(TEST_LIBS)   $(CXXLIBS)
@@ -296,6 +298,7 @@ lintlib :
 #  TermlibRoot:   ncurses
 #  TermlibSuffix: .a
 #  ReLink:        no
+#  ReRanlib:      no
 #  DoLinks:       yes
 #  rmSoLocs:      no
 #  ldconfig:      /usr/sbin/ldconfig
@@ -316,6 +319,7 @@ NORMAL_OBJS = \
 $(NORMAL_OBJS) : ../include/ncurses_cfg.h
 
 ../lib/libncurses++.a : $(NORMAL_OBJS)
+	@sleep 1
 	$(CXX_AR) $(CXX_ARFLAGS) $@ $?
 	$(RANLIB) $@
 
@@ -324,7 +328,6 @@ install.libs \
 install.ncurses++ :: $(DESTDIR)$(libdir) ../lib/libncurses++.a
 	@echo installing ../lib/libncurses++.a as $(DESTDIR)$(libdir)/libncurses++.a
 	$(INSTALL_DATA) ../lib/libncurses++.a $(DESTDIR)$(libdir)/libncurses++.a
-	$(RANLIB) $(DESTDIR)$(libdir)/libncurses++.a
 
 uninstall \
 uninstall.libs \
@@ -408,6 +411,7 @@ mostlyclean::
 #  TermlibRoot:   ncurses
 #  TermlibSuffix: .a
 #  ReLink:        no
+#  ReRanlib:      no
 #  DoLinks:       yes
 #  rmSoLocs:      no
 #  ldconfig:      /usr/sbin/ldconfig
@@ -428,6 +432,7 @@ DEBUG_OBJS = \
 $(DEBUG_OBJS) : ../include/ncurses_cfg.h
 
 ../lib/libncurses++_g.a : $(DEBUG_OBJS)
+	@sleep 1
 	$(CXX_AR) $(CXX_ARFLAGS) $@ $?
 	$(RANLIB) $@
 
@@ -436,7 +441,6 @@ install.libs \
 install.ncurses++ :: $(DESTDIR)$(libdir) ../lib/libncurses++_g.a
 	@echo installing ../lib/libncurses++_g.a as $(DESTDIR)$(libdir)/libncurses++_g.a
 	$(INSTALL_DATA) ../lib/libncurses++_g.a $(DESTDIR)$(libdir)/libncurses++_g.a
-	$(RANLIB) $(DESTDIR)$(libdir)/libncurses++_g.a
 
 uninstall \
 uninstall.libs \

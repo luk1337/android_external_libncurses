@@ -6,8 +6,8 @@ datarootdir="${prefix}/share"
 datadir="${datarootdir}"
 
 NCURSES_MAJOR="6"
-NCURSES_MINOR="1"
-NCURSES_PATCH="20180127"
+NCURSES_MINOR="2"
+NCURSES_PATCH="20200212"
 
 NCURSES_OSPEED="short"
 TERMINFO="/system/etc/terminfo"

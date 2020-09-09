@@ -17,7 +17,7 @@ _nc_fallback2 (const char *name GCC_UNUSED)
 #undef _nc_fallback
 
 /*
- * This entrypoint is used by tack.
+ * This entrypoint is used by tack 1.07
  */
 NCURSES_EXPORT(const TERMTYPE *)
 _nc_fallback (const char *name)

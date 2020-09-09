@@ -19,11 +19,6 @@
 
 #include <curses.priv.h>
 
-#undef vw_scanw
-#undef vwscanw
-
-#undef vw_printw
-#undef vwprintw
 NCURSES_EXPORT(int) (addch) (const chtype z)
 {
 	T((T_CALLED("addch(%s)"), _tracechtype2(0,z)));
@@ -511,16 +506,6 @@ NCURSES_EXPORT(int) (vline) (chtype a1, int z)
 {
 	T((T_CALLED("vline(%s,%d)"), _tracechtype2(0,a1), z));
 	returnCode(wvline(stdscr, a1, (z)));
-}
-NCURSES_EXPORT(int) (vw_printw) (WINDOW * a1, const char * a2, va_list z)
-{
-	T((T_CALLED("vw_printw(%p,%s,%s)"), (const void *)a1, _nc_visbuf2(1,a2), "va_list"));
-	returnCode(vwprintw(a1, a2, z));
-}
-NCURSES_EXPORT(int) (vw_scanw) (WINDOW * a1, const char * a2, va_list z)
-{
-	T((T_CALLED("vw_scanw(%p,%s,%s)"), (const void *)a1, _nc_visbuf2(1,a2), "va_list"));
-	returnCode(vwscanw(a1, a2, z));
 }
 NCURSES_EXPORT(int) (waddchstr) (WINDOW * a1, const chtype * z)
 {

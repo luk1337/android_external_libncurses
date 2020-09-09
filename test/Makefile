@@ -1,6 +1,7 @@
-# $Id: Makefile.in,v 1.120 2018/01/15 19:28:45 tom Exp $
+# $Id: Makefile.in,v 1.121 2020/02/02 23:34:34 tom Exp $
 ##############################################################################
-# Copyright (c) 1998-2017,2018 Free Software Foundation, Inc.                #
+# Copyright 2020 Thomas E. Dickey                                            #
+# Copyright 1998-2017,2018 Free Software Foundation, Inc.                    #
 #                                                                            #
 # Permission is hereby granted, free of charge, to any person obtaining a    #
 # copy of this software and associated documentation files (the "Software"), #
@@ -84,7 +85,7 @@ CC		= gcc
 CPP		= gcc -E
 
 CFLAGS		= -O2 --param max-inline-insns-single=1200 
-CPPFLAGS	= -I. -I$(srcdir) -I../test -DHAVE_CONFIG_H -DDATA_DIR=\"$(datadir)\" -I. -I../include  -D_GNU_SOURCE -D_DEFAULT_SOURCE -DNDEBUG
+CPPFLAGS	= -I. -I$(srcdir) -I../test -DHAVE_CONFIG_H -DDATA_DIR=\"$(datadir)\" -I. -I../include -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=600 -DNDEBUG
 
 CCFLAGS		= $(CPPFLAGS) $(CFLAGS)
 
@@ -96,12 +97,12 @@ CFLAGS_SHARED	= $(CCFLAGS) -fPIC
 
 CFLAGS_DEFAULT	= $(CFLAGS_NORMAL)
 
-REL_VERSION	= 6.1
+REL_VERSION	= 6.2
 ABI_VERSION	= 6
 LOCAL_LIBDIR	= /mnt/ssd-2/lineage-18.0/external/libncurses/lib
 LOCAL_LIBS	= ../lib/libform.a ../lib/libmenu.a ../lib/libpanel.a ../lib/libncurses.a 
 MATH_LIB	= -lm
-TEST_LIBS	= -lutil
+TEST_LIBS	= -lutil 
 
 LD		= ld
 LINK		=  $(LIBTOOL_LINK) $(CFLAGS)
@@ -149,6 +150,7 @@ TESTS	= $(destdir)background$x \
 	  $(destdir)cardfile$x \
 	  $(destdir)chgat$x \
 	  $(destdir)clip_printw$x \
+	  $(destdir)color_content$x \
 	  $(destdir)color_set$x \
 	  $(destdir)demo_altkeys$x \
 	  $(destdir)demo_defkey$x \
@@ -157,6 +159,7 @@ TESTS	= $(destdir)background$x \
 	  $(destdir)demo_menus$x \
 	  $(destdir)demo_new_pair$x \
 	  $(destdir)demo_panels$x \
+	  $(destdir)demo_tabs$x \
 	  $(destdir)demo_termcap$x \
 	  $(destdir)demo_terminfo$x \
 	  $(destdir)ditto$x \
@@ -187,9 +190,10 @@ TESTS	= $(destdir)background$x \
 	  $(destdir)lrtest$x \
 	  $(destdir)movewindow$x \
 	  $(destdir)ncurses$x \
-	  $(destdir)padview$x \
-	  $(destdir)picsmap$x \
 	  $(destdir)newdemo$x \
+	  $(destdir)padview$x \
+	  $(destdir)pair_content$x \
+	  $(destdir)picsmap$x \
 	  $(destdir)railroad$x \
 	  $(destdir)rain$x \
 	  $(destdir)redraw$x \
@@ -230,6 +234,8 @@ all: $(TESTS)
 
 sources:
 
+check:
+	@ echo The test-programs are interactive
 tags:
 	$(CTAGS) *.[ch]
 
@@ -260,8 +266,8 @@ lint:
 $(BINDIR) $(DATADIR) :
 	mkdir -p $@
 
-$(destdir)background$x: $(MODEL)/background$o $(LOCAL_LIBS)
-	$(LINK) -o $@ $(MODEL)/background$o $(LDFLAGS_CURSES)
+$(destdir)background$x: $(MODEL)/background$o $(MODEL)/dump_window$o $(LOCAL_LIBS)
+	$(LINK) -o $@ $(MODEL)/background$o $(MODEL)/dump_window$o $(LDFLAGS_CURSES)
 
 $(destdir)blue$x: $(MODEL)/blue$o $(LOCAL_LIBS)
 	$(LINK) -o $@ $(MODEL)/blue$o $(LDFLAGS_CURSES)
@@ -277,6 +283,9 @@ $(destdir)chgat$x: $(MODEL)/chgat$o $(MODEL)/popup_msg$o $(LOCAL_LIBS)
 
 $(destdir)clip_printw$x: $(MODEL)/clip_printw$o $(MODEL)/popup_msg$o $(LOCAL_LIBS)
 	$(LINK) -o $@ $(MODEL)/clip_printw$o $(MODEL)/popup_msg$o $(LDFLAGS_CURSES)
+
+$(destdir)color_content$x: $(MODEL)/color_content$o $(LOCAL_LIBS)
+	$(LINK) -o $@ $(MODEL)/color_content$o $(LDFLAGS_CURSES)
 
 $(destdir)color_set$x: $(MODEL)/color_set$o $(LOCAL_LIBS)
 	$(LINK) -o $@ $(MODEL)/color_set$o $(LDFLAGS_CURSES)
@@ -301,6 +310,9 @@ $(destdir)demo_new_pair$x: $(MODEL)/demo_new_pair$o $(MODEL)/popup_msg$o $(LOCAL
 
 $(destdir)demo_panels$x: $(MODEL)/demo_panels$o $(LOCAL_LIBS)
 	$(LINK) -o $@ $(MODEL)/demo_panels$o $(LDFLAGS_DEFAULT)
+
+$(destdir)demo_tabs$x: $(MODEL)/demo_tabs$o $(LOCAL_LIBS)
+	$(LINK) -o $@ $(MODEL)/demo_tabs$o $(LDFLAGS_CURSES)
 
 $(destdir)demo_termcap$x: $(MODEL)/demo_termcap$o $(LOCAL_LIBS)
 	$(LINK) -o $@ $(MODEL)/demo_termcap$o $(LDFLAGS_TINFO)
@@ -392,14 +404,17 @@ $(destdir)movewindow$x: $(MODEL)/movewindow$o $(MODEL)/popup_msg$o $(LOCAL_LIBS)
 $(destdir)ncurses$x: $(MODEL)/ncurses$o $(LOCAL_LIBS)
 	$(LINK) -o $@ $(MODEL)/ncurses$o $(LDFLAGS_DEFAULT)
 
+$(destdir)newdemo$x: $(MODEL)/newdemo$o $(LOCAL_LIBS)
+	$(LINK) -o $@ $(MODEL)/newdemo$o $(LDFLAGS_CURSES)
+
 $(destdir)padview$x: $(MODEL)/padview$o $(MODEL)/popup_msg$o $(LOCAL_LIBS)
 	$(LINK) -o $@ $(MODEL)/padview$o $(MODEL)/popup_msg$o $(LDFLAGS_CURSES)
 
+$(destdir)pair_content$x: $(MODEL)/pair_content$o $(LOCAL_LIBS)
+	$(LINK) -o $@ $(MODEL)/pair_content$o $(LDFLAGS_CURSES)
+
 $(destdir)picsmap$x: $(MODEL)/picsmap$o $(LOCAL_LIBS)
 	$(LINK) -o $@ $(MODEL)/picsmap$o $(LDFLAGS_CURSES)
-
-$(destdir)newdemo$x: $(MODEL)/newdemo$o $(LOCAL_LIBS)
-	$(LINK) -o $@ $(MODEL)/newdemo$o $(LDFLAGS_CURSES)
 
 $(destdir)railroad$x: $(MODEL)/railroad$o $(LOCAL_LIBS)
 	$(LINK) -o $@ $(MODEL)/railroad$o $(LDFLAGS_TINFO)
@@ -508,6 +523,7 @@ C_SRC = \
 	$(srcdir)/cardfile.c \
 	$(srcdir)/chgat.c \
 	$(srcdir)/clip_printw.c \
+	$(srcdir)/color_content.c \
 	$(srcdir)/color_set.c \
 	$(srcdir)/demo_altkeys.c \
 	$(srcdir)/demo_defkey.c \
@@ -516,6 +532,7 @@ C_SRC = \
 	$(srcdir)/demo_menus.c \
 	$(srcdir)/demo_new_pair.c \
 	$(srcdir)/demo_panels.c \
+	$(srcdir)/demo_tabs.c \
 	$(srcdir)/demo_termcap.c \
 	$(srcdir)/demo_terminfo.c \
 	$(srcdir)/ditto.c \
@@ -524,6 +541,7 @@ C_SRC = \
 	$(srcdir)/dots_mvcur.c \
 	$(srcdir)/dots_termcap.c \
 	$(srcdir)/dots_xcurses.c \
+	$(srcdir)/dump_window.c \
 	$(srcdir)/echochar.c \
 	$(srcdir)/edit_field.c \
 	$(srcdir)/extended_color.c \
@@ -549,6 +567,7 @@ C_SRC = \
 	$(srcdir)/ncurses.c \
 	$(srcdir)/newdemo.c \
 	$(srcdir)/padview.c \
+	$(srcdir)/pair_content.c \
 	$(srcdir)/picsmap.c \
 	$(srcdir)/popup_msg.c \
 	$(srcdir)/railroad.c \
@@ -598,6 +617,7 @@ lintlib :
 #  TermlibRoot:   ncurses
 #  TermlibSuffix: .a
 #  ReLink:        no
+#  ReRanlib:      no
 #  DoLinks:       yes
 #  rmSoLocs:      no
 #  ldconfig:      /usr/sbin/ldconfig
@@ -612,6 +632,7 @@ NORMAL_OBJS = \
 	../objects/cardfile$o \
 	../objects/chgat$o \
 	../objects/clip_printw$o \
+	../objects/color_content$o \
 	../objects/color_set$o \
 	../objects/demo_altkeys$o \
 	../objects/demo_defkey$o \
@@ -620,6 +641,7 @@ NORMAL_OBJS = \
 	../objects/demo_menus$o \
 	../objects/demo_new_pair$o \
 	../objects/demo_panels$o \
+	../objects/demo_tabs$o \
 	../objects/demo_termcap$o \
 	../objects/demo_terminfo$o \
 	../objects/ditto$o \
@@ -628,6 +650,7 @@ NORMAL_OBJS = \
 	../objects/dots_mvcur$o \
 	../objects/dots_termcap$o \
 	../objects/dots_xcurses$o \
+	../objects/dump_window$o \
 	../objects/echochar$o \
 	../objects/edit_field$o \
 	../objects/extended_color$o \
@@ -653,6 +676,7 @@ NORMAL_OBJS = \
 	../objects/ncurses$o \
 	../objects/newdemo$o \
 	../objects/padview$o \
+	../objects/pair_content$o \
 	../objects/picsmap$o \
 	../objects/popup_msg$o \
 	../objects/railroad$o \
@@ -729,6 +753,10 @@ clean ::
 			$(srcdir)/popup_msg.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/clip_printw.c -o ../objects/clip_printw$o
 
+../objects/color_content$o :	$(srcdir)/color_content.c \
+			$(HEADER_DEPS)
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/color_content.c -o ../objects/color_content$o
+
 ../objects/color_set$o :	$(srcdir)/color_set.c \
 			$(HEADER_DEPS)
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/color_set.c -o ../objects/color_set$o
@@ -765,6 +793,10 @@ clean ::
 			../include/panel.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/demo_panels.c -o ../objects/demo_panels$o
 
+../objects/demo_tabs$o :	$(srcdir)/demo_tabs.c \
+			$(HEADER_DEPS)
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/demo_tabs.c -o ../objects/demo_tabs$o
+
 ../objects/demo_termcap$o :	$(srcdir)/demo_termcap.c \
 			$(HEADER_DEPS)
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/demo_termcap.c -o ../objects/demo_termcap$o
@@ -796,6 +828,11 @@ clean ::
 ../objects/dots_xcurses$o :	$(srcdir)/dots_xcurses.c \
 			$(HEADER_DEPS)
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/dots_xcurses.c -o ../objects/dots_xcurses$o
+
+../objects/dump_window$o :	$(srcdir)/dump_window.c \
+			$(HEADER_DEPS) \
+			$(srcdir)/dump_window.h
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/dump_window.c -o ../objects/dump_window$o
 
 ../objects/echochar$o :	$(srcdir)/echochar.c \
 			$(HEADER_DEPS)
@@ -911,6 +948,10 @@ clean ::
 			$(srcdir)/popup_msg.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/padview.c -o ../objects/padview$o
 
+../objects/pair_content$o :	$(srcdir)/pair_content.c \
+			$(HEADER_DEPS)
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/pair_content.c -o ../objects/pair_content$o
+
 ../objects/picsmap$o :	$(srcdir)/picsmap.c \
 			$(HEADER_DEPS)
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/picsmap.c -o ../objects/picsmap$o
@@ -936,7 +977,8 @@ clean ::
 
 ../objects/savescreen$o :	$(srcdir)/savescreen.c \
 			$(HEADER_DEPS) \
-			$(srcdir)/popup_msg.h
+			$(srcdir)/popup_msg.h \
+			$(srcdir)/parse_rgb.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/savescreen.c -o ../objects/savescreen$o
 
 ../objects/sp_tinfo$o :	$(srcdir)/sp_tinfo.c \
@@ -1054,6 +1096,7 @@ clean ::
 #  TermlibRoot:   ncurses
 #  TermlibSuffix: .a
 #  ReLink:        no
+#  ReRanlib:      no
 #  DoLinks:       yes
 #  rmSoLocs:      no
 #  ldconfig:      /usr/sbin/ldconfig
@@ -1068,6 +1111,7 @@ DEBUG_OBJS = \
 	../obj_g/cardfile$o \
 	../obj_g/chgat$o \
 	../obj_g/clip_printw$o \
+	../obj_g/color_content$o \
 	../obj_g/color_set$o \
 	../obj_g/demo_altkeys$o \
 	../obj_g/demo_defkey$o \
@@ -1076,6 +1120,7 @@ DEBUG_OBJS = \
 	../obj_g/demo_menus$o \
 	../obj_g/demo_new_pair$o \
 	../obj_g/demo_panels$o \
+	../obj_g/demo_tabs$o \
 	../obj_g/demo_termcap$o \
 	../obj_g/demo_terminfo$o \
 	../obj_g/ditto$o \
@@ -1084,6 +1129,7 @@ DEBUG_OBJS = \
 	../obj_g/dots_mvcur$o \
 	../obj_g/dots_termcap$o \
 	../obj_g/dots_xcurses$o \
+	../obj_g/dump_window$o \
 	../obj_g/echochar$o \
 	../obj_g/edit_field$o \
 	../obj_g/extended_color$o \
@@ -1109,6 +1155,7 @@ DEBUG_OBJS = \
 	../obj_g/ncurses$o \
 	../obj_g/newdemo$o \
 	../obj_g/padview$o \
+	../obj_g/pair_content$o \
 	../obj_g/picsmap$o \
 	../obj_g/popup_msg$o \
 	../obj_g/railroad$o \
@@ -1185,6 +1232,10 @@ clean ::
 			$(srcdir)/popup_msg.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/clip_printw.c -o ../obj_g/clip_printw$o
 
+../obj_g/color_content$o :	$(srcdir)/color_content.c \
+			$(HEADER_DEPS)
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/color_content.c -o ../obj_g/color_content$o
+
 ../obj_g/color_set$o :	$(srcdir)/color_set.c \
 			$(HEADER_DEPS)
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/color_set.c -o ../obj_g/color_set$o
@@ -1221,6 +1272,10 @@ clean ::
 			../include/panel.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/demo_panels.c -o ../obj_g/demo_panels$o
 
+../obj_g/demo_tabs$o :	$(srcdir)/demo_tabs.c \
+			$(HEADER_DEPS)
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/demo_tabs.c -o ../obj_g/demo_tabs$o
+
 ../obj_g/demo_termcap$o :	$(srcdir)/demo_termcap.c \
 			$(HEADER_DEPS)
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/demo_termcap.c -o ../obj_g/demo_termcap$o
@@ -1252,6 +1307,11 @@ clean ::
 ../obj_g/dots_xcurses$o :	$(srcdir)/dots_xcurses.c \
 			$(HEADER_DEPS)
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/dots_xcurses.c -o ../obj_g/dots_xcurses$o
+
+../obj_g/dump_window$o :	$(srcdir)/dump_window.c \
+			$(HEADER_DEPS) \
+			$(srcdir)/dump_window.h
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/dump_window.c -o ../obj_g/dump_window$o
 
 ../obj_g/echochar$o :	$(srcdir)/echochar.c \
 			$(HEADER_DEPS)
@@ -1367,6 +1427,10 @@ clean ::
 			$(srcdir)/popup_msg.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/padview.c -o ../obj_g/padview$o
 
+../obj_g/pair_content$o :	$(srcdir)/pair_content.c \
+			$(HEADER_DEPS)
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/pair_content.c -o ../obj_g/pair_content$o
+
 ../obj_g/picsmap$o :	$(srcdir)/picsmap.c \
 			$(HEADER_DEPS)
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/picsmap.c -o ../obj_g/picsmap$o
@@ -1392,7 +1456,8 @@ clean ::
 
 ../obj_g/savescreen$o :	$(srcdir)/savescreen.c \
 			$(HEADER_DEPS) \
-			$(srcdir)/popup_msg.h
+			$(srcdir)/popup_msg.h \
+			$(srcdir)/parse_rgb.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/savescreen.c -o ../obj_g/savescreen$o
 
 ../obj_g/sp_tinfo$o :	$(srcdir)/sp_tinfo.c \

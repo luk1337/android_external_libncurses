@@ -89,12 +89,20 @@
 #define HAVE_COLOR_SET 1
 #endif
 
+#ifndef HAVE_CONSISTENT_GETENV
+#define HAVE_CONSISTENT_GETENV 0
+#endif
+
 #ifndef HAVE_COPYWIN
 #define HAVE_COPYWIN 1
 #endif
 
 #ifndef HAVE_CURSCR
 #define HAVE_CURSCR 1
+#endif
+
+#ifndef HAVE_CURSES_DATA_TABSIZE
+#define HAVE_CURSES_DATA_TABSIZE 1
 #endif
 
 #ifndef HAVE_CURSES_DATA_TTYTYPE
@@ -257,12 +265,20 @@
 #define HAVE_LIBPANEL 0
 #endif
 
+#ifndef HAVE_LIB_PCRE2
+#define HAVE_LIB_PCRE2 0
+#endif
+
 #ifndef HAVE_LIMITS_H
 #define HAVE_LIMITS_H 0
 #endif
 
 #ifndef HAVE_LINK
 #define HAVE_LINK 0
+#endif
+
+#ifndef HAVE_LOCALECONV
+#define HAVE_LOCALECONV 0
 #endif
 
 #ifndef HAVE_LOCALE_H
@@ -339,6 +355,14 @@
 
 #ifndef HAVE_PANEL_H
 #define HAVE_PANEL_H 0
+#endif
+
+#ifndef HAVE_PCRE2_POSIX_H
+#define HAVE_PCRE2_POSIX_H 0
+#endif
+
+#ifndef HAVE_PCREPOSIX_H
+#define HAVE_PCREPOSIX_H 0
 #endif
 
 #ifndef HAVE_POLL
@@ -481,6 +505,10 @@
 #define HAVE_SYMLINK 0
 #endif
 
+#ifndef HAVE_SYSCONF
+#define HAVE_SYSCONF 0
+#endif
+
 #ifndef HAVE_SYS_BSDTYPES_H
 #define HAVE_SYS_BSDTYPES_H 0
 #endif
@@ -523,10 +551,6 @@
 
 #ifndef HAVE_TCGETPGRP
 #define HAVE_TCGETPGRP 0
-#endif
-
-#ifndef HAVE_TDESTROY
-#define HAVE_TDESTROY 0
 #endif
 
 #ifndef HAVE_TELL
@@ -799,6 +823,10 @@
 
 #ifndef USE_COLORFGBG
 #define USE_COLORFGBG 0
+#endif
+
+#ifndef USE_FOPEN_BIN_R
+#define USE_FOPEN_BIN_R 0
 #endif
 
 #ifndef USE_GETCAP
