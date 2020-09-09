@@ -22,13 +22,13 @@ _nc_toggle_attr_off (attr_t *S, attr_t at)
  int
 _nc_DelCharCost_sp (SCREEN *sp, int count)
 {
- return ((cur_term->type. Strings[105] != 0) ? sp->_dch_cost : ((cur_term->type. Strings[21] != 0) ? (sp->_dch1_cost * count) : 1000000));
+ return (((cur_term)->type. Strings[105] != 0) ? sp->_dch_cost : (((cur_term)->type. Strings[21] != 0) ? (sp->_dch1_cost * count) : 1000000));
 }
 
  int
 _nc_InsCharCost_sp (SCREEN *sp, int count)
 {
- return ((cur_term->type. Strings[108] != 0) ? sp->_ich_cost : ((cur_term->type. Strings[31] && cur_term->type. Strings[42]) ? sp->_smir_cost + sp->_rmir_cost + (sp->_ip_cost * count) : ((cur_term->type. Strings[52] != 0) ? ((sp->_ich1_cost + sp->_ip_cost) * count) : 1000000)));
+ return (((cur_term)->type. Strings[108] != 0) ? sp->_ich_cost : (((cur_term)->type. Strings[31] && (cur_term)->type. Strings[42]) ? sp->_smir_cost + sp->_rmir_cost + (sp->_ip_cost * count) : (((cur_term)->type. Strings[52] != 0) ? ((sp->_ich1_cost + sp->_ip_cost) * count) : 1000000)));
 }
 
  void

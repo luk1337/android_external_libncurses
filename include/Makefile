@@ -45,10 +45,10 @@ THIS		= Makefile
 
 DESTDIR		= 
 srcdir		= .
-prefix		= /system
+prefix		= /usr
 exec_prefix	= ${prefix}
 includedir	= ${prefix}/include
-includesubdir	= /ncurses
+includesubdir	= 
 
 INCLUDEDIR	= $(DESTDIR)$(includedir)$(includesubdir)
 
@@ -58,10 +58,10 @@ INSTALL_DATA	= ${INSTALL} -m 644
 AWK		= mawk
 LN_S		= ln -s -f
 
-CTAGS		= 
+CTAGS		= ctags
 ETAGS		= 
 
-VERSION		= 6.0
+VERSION		= 6.1
 
 # The "Caps" file specifies the terminfo database format, as well as the list
 # of function keys.

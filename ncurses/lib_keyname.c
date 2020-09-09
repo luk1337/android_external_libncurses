@@ -32,66 +32,66 @@ static const struct kn _nc_key_names[] = {
 	{ 215, KEY_EOS },
 	{ 223, KEY_EXIT },
 	{ 232, KEY_F(0) },
-	{ 241, KEY_F(10) },
-	{ 251, KEY_F(11) },
-	{ 261, KEY_F(12) },
-	{ 271, KEY_F(13) },
-	{ 281, KEY_F(14) },
-	{ 291, KEY_F(15) },
-	{ 301, KEY_F(16) },
-	{ 311, KEY_F(17) },
-	{ 321, KEY_F(18) },
-	{ 331, KEY_F(19) },
-	{ 341, KEY_F(1) },
-	{ 350, KEY_F(20) },
-	{ 360, KEY_F(21) },
-	{ 370, KEY_F(22) },
-	{ 380, KEY_F(23) },
-	{ 390, KEY_F(24) },
-	{ 400, KEY_F(25) },
-	{ 410, KEY_F(26) },
-	{ 420, KEY_F(27) },
-	{ 430, KEY_F(28) },
-	{ 440, KEY_F(29) },
-	{ 450, KEY_F(2) },
-	{ 459, KEY_F(30) },
-	{ 469, KEY_F(31) },
-	{ 479, KEY_F(32) },
-	{ 489, KEY_F(33) },
-	{ 499, KEY_F(34) },
-	{ 509, KEY_F(35) },
-	{ 519, KEY_F(36) },
-	{ 529, KEY_F(37) },
-	{ 539, KEY_F(38) },
-	{ 549, KEY_F(39) },
-	{ 559, KEY_F(3) },
-	{ 568, KEY_F(40) },
-	{ 578, KEY_F(41) },
-	{ 588, KEY_F(42) },
-	{ 598, KEY_F(43) },
-	{ 608, KEY_F(44) },
-	{ 618, KEY_F(45) },
-	{ 628, KEY_F(46) },
-	{ 638, KEY_F(47) },
-	{ 648, KEY_F(48) },
-	{ 658, KEY_F(49) },
-	{ 668, KEY_F(4) },
-	{ 677, KEY_F(50) },
-	{ 687, KEY_F(51) },
-	{ 697, KEY_F(52) },
-	{ 707, KEY_F(53) },
-	{ 717, KEY_F(54) },
-	{ 727, KEY_F(55) },
-	{ 737, KEY_F(56) },
-	{ 747, KEY_F(57) },
-	{ 757, KEY_F(58) },
-	{ 767, KEY_F(59) },
-	{ 777, KEY_F(5) },
-	{ 786, KEY_F(60) },
-	{ 796, KEY_F(61) },
-	{ 806, KEY_F(62) },
-	{ 816, KEY_F(63) },
-	{ 826, KEY_F(6) },
+	{ 241, KEY_F(1) },
+	{ 250, KEY_F(10) },
+	{ 260, KEY_F(11) },
+	{ 270, KEY_F(12) },
+	{ 280, KEY_F(13) },
+	{ 290, KEY_F(14) },
+	{ 300, KEY_F(15) },
+	{ 310, KEY_F(16) },
+	{ 320, KEY_F(17) },
+	{ 330, KEY_F(18) },
+	{ 340, KEY_F(19) },
+	{ 350, KEY_F(2) },
+	{ 359, KEY_F(20) },
+	{ 369, KEY_F(21) },
+	{ 379, KEY_F(22) },
+	{ 389, KEY_F(23) },
+	{ 399, KEY_F(24) },
+	{ 409, KEY_F(25) },
+	{ 419, KEY_F(26) },
+	{ 429, KEY_F(27) },
+	{ 439, KEY_F(28) },
+	{ 449, KEY_F(29) },
+	{ 459, KEY_F(3) },
+	{ 468, KEY_F(30) },
+	{ 478, KEY_F(31) },
+	{ 488, KEY_F(32) },
+	{ 498, KEY_F(33) },
+	{ 508, KEY_F(34) },
+	{ 518, KEY_F(35) },
+	{ 528, KEY_F(36) },
+	{ 538, KEY_F(37) },
+	{ 548, KEY_F(38) },
+	{ 558, KEY_F(39) },
+	{ 568, KEY_F(4) },
+	{ 577, KEY_F(40) },
+	{ 587, KEY_F(41) },
+	{ 597, KEY_F(42) },
+	{ 607, KEY_F(43) },
+	{ 617, KEY_F(44) },
+	{ 627, KEY_F(45) },
+	{ 637, KEY_F(46) },
+	{ 647, KEY_F(47) },
+	{ 657, KEY_F(48) },
+	{ 667, KEY_F(49) },
+	{ 677, KEY_F(5) },
+	{ 686, KEY_F(50) },
+	{ 696, KEY_F(51) },
+	{ 706, KEY_F(52) },
+	{ 716, KEY_F(53) },
+	{ 726, KEY_F(54) },
+	{ 736, KEY_F(55) },
+	{ 746, KEY_F(56) },
+	{ 756, KEY_F(57) },
+	{ 766, KEY_F(58) },
+	{ 776, KEY_F(59) },
+	{ 786, KEY_F(6) },
+	{ 795, KEY_F(60) },
+	{ 805, KEY_F(61) },
+	{ 815, KEY_F(62) },
+	{ 825, KEY_F(63) },
 	{ 835, KEY_F(7) },
 	{ 844, KEY_F(8) },
 	{ 853, KEY_F(9) },
@@ -134,8 +134,8 @@ static const struct kn _nc_key_names[] = {
 	{ 1225, KEY_SEND },
 	{ 1234, KEY_SEOL },
 	{ 1243, KEY_SEXIT },
-	{ 1253, KEY_SFIND },
-	{ 1263, KEY_SF },
+	{ 1253, KEY_SF },
+	{ 1260, KEY_SFIND },
 	{ 1270, KEY_SHELP },
 	{ 1280, KEY_SHOME },
 	{ 1290, KEY_SIC },
@@ -146,11 +146,11 @@ static const struct kn _nc_key_names[] = {
 	{ 1341, KEY_SOPTIONS },
 	{ 1354, KEY_SPREVIOUS },
 	{ 1368, KEY_SPRINT },
-	{ 1379, KEY_SREDO },
-	{ 1389, KEY_SREPLACE },
-	{ 1402, KEY_SRESET },
-	{ 1413, KEY_SRIGHT },
-	{ 1424, KEY_SR },
+	{ 1379, KEY_SR },
+	{ 1386, KEY_SREDO },
+	{ 1396, KEY_SREPLACE },
+	{ 1409, KEY_SRESET },
+	{ 1420, KEY_SRIGHT },
 	{ 1431, KEY_SRSUME },
 	{ 1442, KEY_SSAVE },
 	{ 1452, KEY_SSUSPEND },
@@ -189,6 +189,7 @@ static const char key_names[] =
 	"KEY_EOS\0"
 	"KEY_EXIT\0"
 	"KEY_F(0)\0"
+	"KEY_F(1)\0"
 	"KEY_F(10)\0"
 	"KEY_F(11)\0"
 	"KEY_F(12)\0"
@@ -199,7 +200,7 @@ static const char key_names[] =
 	"KEY_F(17)\0"
 	"KEY_F(18)\0"
 	"KEY_F(19)\0"
-	"KEY_F(1)\0"
+	"KEY_F(2)\0"
 	"KEY_F(20)\0"
 	"KEY_F(21)\0"
 	"KEY_F(22)\0"
@@ -210,7 +211,7 @@ static const char key_names[] =
 	"KEY_F(27)\0"
 	"KEY_F(28)\0"
 	"KEY_F(29)\0"
-	"KEY_F(2)\0"
+	"KEY_F(3)\0"
 	"KEY_F(30)\0"
 	"KEY_F(31)\0"
 	"KEY_F(32)\0"
@@ -221,7 +222,7 @@ static const char key_names[] =
 	"KEY_F(37)\0"
 	"KEY_F(38)\0"
 	"KEY_F(39)\0"
-	"KEY_F(3)\0"
+	"KEY_F(4)\0"
 	"KEY_F(40)\0"
 	"KEY_F(41)\0"
 	"KEY_F(42)\0"
@@ -232,7 +233,7 @@ static const char key_names[] =
 	"KEY_F(47)\0"
 	"KEY_F(48)\0"
 	"KEY_F(49)\0"
-	"KEY_F(4)\0"
+	"KEY_F(5)\0"
 	"KEY_F(50)\0"
 	"KEY_F(51)\0"
 	"KEY_F(52)\0"
@@ -243,12 +244,11 @@ static const char key_names[] =
 	"KEY_F(57)\0"
 	"KEY_F(58)\0"
 	"KEY_F(59)\0"
-	"KEY_F(5)\0"
+	"KEY_F(6)\0"
 	"KEY_F(60)\0"
 	"KEY_F(61)\0"
 	"KEY_F(62)\0"
 	"KEY_F(63)\0"
-	"KEY_F(6)\0"
 	"KEY_F(7)\0"
 	"KEY_F(8)\0"
 	"KEY_F(9)\0"
@@ -291,8 +291,8 @@ static const char key_names[] =
 	"KEY_SEND\0"
 	"KEY_SEOL\0"
 	"KEY_SEXIT\0"
-	"KEY_SFIND\0"
 	"KEY_SF\0"
+	"KEY_SFIND\0"
 	"KEY_SHELP\0"
 	"KEY_SHOME\0"
 	"KEY_SIC\0"
@@ -303,11 +303,11 @@ static const char key_names[] =
 	"KEY_SOPTIONS\0"
 	"KEY_SPREVIOUS\0"
 	"KEY_SPRINT\0"
+	"KEY_SR\0"
 	"KEY_SREDO\0"
 	"KEY_SREPLACE\0"
 	"KEY_SRESET\0"
 	"KEY_SRIGHT\0"
-	"KEY_SR\0"
 	"KEY_SRSUME\0"
 	"KEY_SSAVE\0"
 	"KEY_SSUSPEND\0"
@@ -324,14 +324,13 @@ static const char key_names[] =
 NCURSES_EXPORT(NCURSES_CONST char *)
 safe_keyname (SCREEN *sp, int c)
 {
-	int i;
 	char name[20];
-	char *p;
 	NCURSES_CONST char *result = 0;
 
 	if (c == -1) {
 		result = "-1";
 	} else {
+		int i;
 		for (i = 0; _nc_key_names[i].offset != -1; i++) {
 			if (_nc_key_names[i].code == c) {
 				result = (NCURSES_CONST char *)key_names + _nc_key_names[i].offset;
@@ -359,7 +358,7 @@ safe_keyname (SCREEN *sp, int c)
 				/* create and cache result as needed */
 				if (MyTable[c] == 0) {
 					int cc = c;
-					p = name;
+					char *p = name;
 #define P_LIMIT (sizeof(name) - (size_t) (p - name))
 					if (cc >= 128 && m_prefix) {
 						_nc_STRCPY(p, "M-", P_LIMIT);
@@ -380,7 +379,7 @@ safe_keyname (SCREEN *sp, int c)
 		} else if (result == 0 && HasTerminal(sp)) {
 			int j, k;
 			char * bound;
-			TERMTYPE *tp = &(TerminalOf(sp)->type);
+			TERMTYPE2 *tp = &TerminalType(TerminalOf(sp));
 			unsigned save_trace = _nc_tracing;
 
 			_nc_tracing = 0;	/* prevent recursion via keybound() */
@@ -411,8 +410,8 @@ keyname (int c)
 #if NO_LEAKS
 void _nc_keyname_leaks(void)
 {
-	int j;
 	if (MyTable != 0) {
+		int j;
 		for (j = 0; j < SIZEOF_TABLE; ++j) {
 			FreeIfNeeded(MyTable[j]);
 		}

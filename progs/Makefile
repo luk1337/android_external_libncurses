@@ -1,6 +1,6 @@
-# $Id: Makefile.in,v 1.95 2015/08/05 09:24:06 tom Exp $
+# $Id: Makefile.in,v 1.102 2018/01/15 19:28:45 tom Exp $
 ##############################################################################
-# Copyright (c) 1998-2014,2015 Free Software Foundation, Inc.                #
+# Copyright (c) 1998-2016,2018 Free Software Foundation, Inc.                #
 #                                                                            #
 # Permission is hereby granted, free of charge, to any person obtaining a    #
 # copy of this software and associated documentation files (the "Software"), #
@@ -56,14 +56,14 @@ MODEL		= ../objects
 DESTDIR		= 
 top_srcdir	= ..
 srcdir		= .
-prefix		= /system
+prefix		= /usr
 exec_prefix	= ${prefix}
 bindir		= ${exec_prefix}/bin
 libdir		= ${exec_prefix}/lib
 includedir	= ${prefix}/include
 datarootdir	= ${prefix}/share
 datadir		= ${datarootdir}
-includesubdir	= /ncurses
+includesubdir	= 
 
 INCLUDEDIR	= $(DESTDIR)$(includedir)$(includesubdir)
 
@@ -78,21 +78,21 @@ LIBTOOL_INSTALL	=
 LIBTOOL_UNINSTALL = 
 
 INSTALL		= /usr/bin/install -c
-INSTALL_PROG	= ${INSTALL}
+INSTALL_PROG	= ${INSTALL} -s
 transform	= s,x,x,
 
 AWK		= mawk
 LN_S		= ln -s -f
 
-CTAGS		= 
+CTAGS		= ctags
 ETAGS		= 
 
-CC		= /home/shade/dev/cm/13/prebuilts/clang/linux-x86/host/3.6/bin/clang
-CPP		= /home/shade/dev/cm/13/prebuilts/clang/linux-x86/host/3.6/bin/clang -E
-CFLAGS		= -target arm-linux-androideabi -I/home/shade/dev/cm/13/bionic/libc/include -I/home/shade/dev/cm/13/bionic/libc/kernel/uapi -I/home/shade/dev/cm/13/bionic/libc/arch-arm/include -I/home/shade/dev/cm/13/bionic/libc/kernel/uapi/asm-arm --sysroot=/home/shade/dev/cm/13/prebuilts/ndk/current/platforms/android-21/arch-arm -L/home/shade/dev/cm/13/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9/lib/gcc/arm-linux-androideabi/4.9.x-google/armv7-a -I/home/shade/dev/cm/13/bionic/libm/include -I/home/shade/dev/cm/13/bionic/libm/include/arm -I/home/shade/dev/cm/13/external/libselinux/include -I/home/shade/dev/cm/13/system/core/include -I/home/shade/dev/cm/13/bionic/libc/dns/include -I.  --param max-inline-insns-single=1200
+CC		= gcc
+CPP		= gcc -E
+CFLAGS		= -O2 --param max-inline-insns-single=1200
 
 INCDIR		= $(top_srcdir)/include
-CPPFLAGS	= -DHAVE_CONFIG_H -I. -I../include   -D_XOPEN_SOURCE=500 -D_FILE_OFFSET_BITS=64  -DNDEBUG
+CPPFLAGS	= -DHAVE_CONFIG_H -I../progs -I. -I../include  -D_GNU_SOURCE -D_DEFAULT_SOURCE -DNDEBUG
 
 CCFLAGS		= $(CPPFLAGS) $(CFLAGS)
 
@@ -104,13 +104,13 @@ CFLAGS_SHARED	= $(CCFLAGS) -fPIC
 
 CFLAGS_DEFAULT	= $(CFLAGS_NORMAL)
 
-REL_VERSION	= 6.0
+REL_VERSION	= 6.1
 ABI_VERSION	= 6
-LOCAL_LIBDIR	= /home/shade/dev/cm/13/external/libncurses/lib
+LOCAL_LIBDIR	= /mnt/ssd-2/lineage-18.0/external/libncurses/lib
 
-LD		= arm-linux-androideabi-ld
+LD		= ld
 LINK		=  $(LIBTOOL_LINK)
-LDFLAGS		=  -L/home/shade/dev/cm/13/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9/lib/gcc/arm-linux-androideabi/4.9.x-google/armv7-a -L/home/shade/dev/cm/13/out/target/product/bacon/system/lib -lc -lselinux -lcutils
+LDFLAGS		=  
 RPATH_LIST	= ${libdir}
 
 LDFLAGS_LIBTOOL	= $(LDFLAGS) $(CFLAGS_LIBTOOL)
@@ -127,7 +127,7 @@ LDFLAGS_TIC	= -L../lib $(LDFLAGS_NORMAL) $(LIBS_TIC)
 LIBS_TINFO	=  -lncurses   
 LDFLAGS_TINFO	= -L../lib $(LDFLAGS_NORMAL) $(LIBS_TINFO)
 
-LINT		= lint
+LINT		= 
 LINT_OPTS	= 
 LINT_LIBS	= -lncurses 
 
@@ -179,6 +179,7 @@ actual_tset      = `echo tset$x|      $(TRANSFORM)`
 
 # transformed names for comparing at runtime
 define_captoinfo = `echo captoinfo|   $(TRANSFORM)`
+define_clear     = `echo clear|       $(TRANSFORM)`
 define_infotocap = `echo infotocap|   $(TRANSFORM)`
 define_init      = `echo init|        $(TRANSFORM)`
 define_reset     = `echo reset|       $(TRANSFORM)`
@@ -191,6 +192,7 @@ transform.h :
 	-$(SHELL) -c 'if test -n "$x" ; then echo "#define SUFFIX_IGNORED \"$x\"">>$@; fi'
 	echo "#define PROG_CAPTOINFO \"$(define_captoinfo)\""		>>$@
 	echo "#define PROG_INFOTOCAP \"$(define_infotocap)\""		>>$@
+	echo "#define PROG_CLEAR     \"$(define_clear)\""		>>$@
 	echo "#define PROG_RESET     \"$(define_reset)\""		>>$@
 	echo "#define PROG_INIT      \"$(define_init)\""		>>$@
 	echo "#endif /* __TRANSFORM_H */"				>>$@
@@ -248,21 +250,27 @@ toe$x: $(DEPS_TOE) $(DEPS_CURSES)
 	 $(LINK) $(DEPS_TOE) $(LDFLAGS_TIC) -o $@
 
 DEPS_CLEAR = \
-	$(MODEL)/clear$o
+	$(MODEL)/clear$o \
+	$(MODEL)/clear_cmd$o \
+	$(MODEL)/tty_settings$o
 
 clear$x: $(DEPS_CLEAR) $(DEPS_CURSES)
 	 $(LINK) $(DEPS_CLEAR) $(LDFLAGS_TINFO) -o $@
 
 DEPS_TABS = \
-	$(MODEL)/tabs$o
+	$(MODEL)/tabs$o \
+	$(MODEL)/tty_settings$o
 
 tabs$x: $(DEPS_TABS) $(DEPS_TABS)
 	 $(LINK) $(DEPS_TABS) $(LDFLAGS_TINFO) -o $@
 
 DEPS_TPUT = \
 	$(MODEL)/tput$o \
+	$(MODEL)/clear_cmd$o \
+	$(MODEL)/reset_cmd$o \
 	$(MODEL)/tparm_type$o \
-	$(MODEL)/transform$o
+	$(MODEL)/transform$o \
+	$(MODEL)/tty_settings$o
 
 tput$x: $(DEPS_TPUT) $(DEPS_CURSES) transform.h
 	 $(LINK) $(DEPS_TPUT) $(LDFLAGS_TINFO) -o $@
@@ -276,7 +284,9 @@ infocmp$x: $(DEPS_INFOCMP) $(DEPS_CURSES)
 
 DEPS_TSET = \
 	$(MODEL)/tset$o \
-	$(MODEL)/transform$o
+	$(MODEL)/reset_cmd$o \
+	$(MODEL)/transform$o \
+	$(MODEL)/tty_settings$o
 
 tset$x: $(DEPS_TSET) $(DEPS_CURSES) transform.h
 	 $(LINK) $(DEPS_TSET) $(LDFLAGS_TINFO) -o $@
@@ -331,9 +341,9 @@ lint:
 
 # Generated by CF_LIB_RULES
 resulting.map: 
-	sed  -e "s/NCURSES\([WT]\+\)\?_/NCURSES\16_/g" -e "/deprecated in ABI6/d" <  >$@
+	mawk 'BEGIN { skip = 1; last=""; } /deprecated in ABI6/ { next; }{ sub("NCURSES([WT]+)?", "&6"); } { if ( last != "" && ( skip == 0 || $$0 !~ /}/ ) ) { print last; } skip = 0; last = $$0; } END { print last; }' <  >$@
 
-clean::
+distclean::
 	rm -f resulting.map
 
 # generated by mk-0th.awk
@@ -352,13 +362,16 @@ C_SRC = \
 	$(srcdir)/clear.c \
 	$(srcdir)/tic.c \
 	$(srcdir)/toe.c \
+	$(srcdir)/clear_cmd.c \
 	$(srcdir)/dump_entry.c \
 	$(srcdir)/infocmp.c \
+	$(srcdir)/reset_cmd.c \
 	$(srcdir)/tabs.c \
 	$(srcdir)/tparm_type.c \
 	$(srcdir)/tput.c \
 	$(srcdir)/tset.c \
-	$(srcdir)/transform.c
+	$(srcdir)/transform.c \
+	$(srcdir)/tty_settings.c
 
 lintlib :
 	@echo no action needed
@@ -381,22 +394,25 @@ lintlib :
 #  ReLink:        no
 #  DoLinks:       yes
 #  rmSoLocs:      no
-#  ldconfig:      :
-#  overwrite:     no
+#  ldconfig:      /usr/sbin/ldconfig
+#  overwrite:     yes
 #  depend:        ../include/ncurses_cfg.h ./progs.priv.h
-#  host:          arm-unknown-linux-androideabi
+#  host:          x86_64-pc-linux-gnu
 
 NORMAL_OBJS = \
 	../objects/clear$o \
 	../objects/tic$o \
 	../objects/toe$o \
+	../objects/clear_cmd$o \
 	../objects/dump_entry$o \
 	../objects/infocmp$o \
+	../objects/reset_cmd$o \
 	../objects/tabs$o \
 	../objects/tparm_type$o \
 	../objects/tput$o \
 	../objects/tset$o \
-	../objects/transform$o
+	../objects/transform$o \
+	../objects/tty_settings$o
 
 $(NORMAL_OBJS) : ../include/ncurses_cfg.h ./progs.priv.h
 
@@ -412,12 +428,13 @@ clean ::
 #   echo:       yes
 #   subset:     ticlib+termlib+ext_tinfo+base+ext_funcs
 #   crenames:   yes
-#   cxxrenames: 
+#   cxxrenames: yes
 #   traces:     DEBUG
 #   srcdir:     .
 
 ../objects/clear$o :	$(srcdir)/clear.c \
-			$(HEADER_DEPS)
+			$(HEADER_DEPS) \
+			tty_settings.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../progs/clear.c -o ../objects/clear$o
 
 ../objects/tic$o :	$(srcdir)/tic.c \
@@ -432,6 +449,11 @@ clean ::
 			$(INCDIR)/hashed_db.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../progs/toe.c -o ../objects/toe$o
 
+../objects/clear_cmd$o :	$(srcdir)/clear_cmd.c \
+			$(HEADER_DEPS) \
+			clear_cmd.h
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../progs/clear_cmd.c -o ../objects/clear_cmd$o
+
 ../objects/dump_entry$o :	$(srcdir)/dump_entry.c \
 			$(HEADER_DEPS) \
 			$(srcdir)/dump_entry.h \
@@ -444,6 +466,12 @@ clean ::
 			$(HEADER_DEPS) \
 			$(srcdir)/dump_entry.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../progs/infocmp.c -o ../objects/infocmp$o
+
+../objects/reset_cmd$o :	$(srcdir)/reset_cmd.c \
+			$(HEADER_DEPS) \
+			reset_cmd.h \
+			tty_settings.h
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../progs/reset_cmd.c -o ../objects/reset_cmd$o
 
 ../objects/tabs$o :	$(srcdir)/tabs.c \
 			$(HEADER_DEPS)
@@ -459,20 +487,29 @@ clean ::
 			transform.h \
 			$(srcdir)/dump_entry.h \
 			$(srcdir)/tparm_type.h \
-			termsort.c
+			termsort.c \
+			reset_cmd.h \
+			tty_settings.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../progs/tput.c -o ../objects/tput$o
 
 ../objects/tset$o :	$(srcdir)/tset.c \
 			$(HEADER_DEPS) \
 			transform.h \
 			$(srcdir)/dump_entry.h \
-			../include/termcap.h
+			../include/termcap.h \
+			reset_cmd.h \
+			tty_settings.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../progs/tset.c -o ../objects/tset$o
 
 ../objects/transform$o :	$(srcdir)/transform.c \
 			$(HEADER_DEPS) \
 			transform.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../progs/transform.c -o ../objects/transform$o
+
+../objects/tty_settings$o :	$(srcdir)/tty_settings.c \
+			$(HEADER_DEPS) \
+			tty_settings.h
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../progs/tty_settings.c -o ../objects/tty_settings$o
 
 
 # generated by mk-1st.awk (subset=ticlib+termlib+ext_tinfo+base+ext_funcs)
@@ -493,22 +530,25 @@ clean ::
 #  ReLink:        no
 #  DoLinks:       yes
 #  rmSoLocs:      no
-#  ldconfig:      :
-#  overwrite:     no
+#  ldconfig:      /usr/sbin/ldconfig
+#  overwrite:     yes
 #  depend:        ../include/ncurses_cfg.h ./progs.priv.h
-#  host:          arm-unknown-linux-androideabi
+#  host:          x86_64-pc-linux-gnu
 
 DEBUG_OBJS = \
 	../obj_g/clear$o \
 	../obj_g/tic$o \
 	../obj_g/toe$o \
+	../obj_g/clear_cmd$o \
 	../obj_g/dump_entry$o \
 	../obj_g/infocmp$o \
+	../obj_g/reset_cmd$o \
 	../obj_g/tabs$o \
 	../obj_g/tparm_type$o \
 	../obj_g/tput$o \
 	../obj_g/tset$o \
-	../obj_g/transform$o
+	../obj_g/transform$o \
+	../obj_g/tty_settings$o
 
 $(DEBUG_OBJS) : ../include/ncurses_cfg.h ./progs.priv.h
 
@@ -524,12 +564,13 @@ clean ::
 #   echo:       yes
 #   subset:     ticlib+termlib+ext_tinfo+base+ext_funcs
 #   crenames:   yes
-#   cxxrenames: 
+#   cxxrenames: yes
 #   traces:     DEBUG
 #   srcdir:     .
 
 ../obj_g/clear$o :	$(srcdir)/clear.c \
-			$(HEADER_DEPS)
+			$(HEADER_DEPS) \
+			tty_settings.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../progs/clear.c -o ../obj_g/clear$o
 
 ../obj_g/tic$o :	$(srcdir)/tic.c \
@@ -544,6 +585,11 @@ clean ::
 			$(INCDIR)/hashed_db.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../progs/toe.c -o ../obj_g/toe$o
 
+../obj_g/clear_cmd$o :	$(srcdir)/clear_cmd.c \
+			$(HEADER_DEPS) \
+			clear_cmd.h
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../progs/clear_cmd.c -o ../obj_g/clear_cmd$o
+
 ../obj_g/dump_entry$o :	$(srcdir)/dump_entry.c \
 			$(HEADER_DEPS) \
 			$(srcdir)/dump_entry.h \
@@ -556,6 +602,12 @@ clean ::
 			$(HEADER_DEPS) \
 			$(srcdir)/dump_entry.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../progs/infocmp.c -o ../obj_g/infocmp$o
+
+../obj_g/reset_cmd$o :	$(srcdir)/reset_cmd.c \
+			$(HEADER_DEPS) \
+			reset_cmd.h \
+			tty_settings.h
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../progs/reset_cmd.c -o ../obj_g/reset_cmd$o
 
 ../obj_g/tabs$o :	$(srcdir)/tabs.c \
 			$(HEADER_DEPS)
@@ -571,20 +623,29 @@ clean ::
 			transform.h \
 			$(srcdir)/dump_entry.h \
 			$(srcdir)/tparm_type.h \
-			termsort.c
+			termsort.c \
+			reset_cmd.h \
+			tty_settings.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../progs/tput.c -o ../obj_g/tput$o
 
 ../obj_g/tset$o :	$(srcdir)/tset.c \
 			$(HEADER_DEPS) \
 			transform.h \
 			$(srcdir)/dump_entry.h \
-			../include/termcap.h
+			../include/termcap.h \
+			reset_cmd.h \
+			tty_settings.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../progs/tset.c -o ../obj_g/tset$o
 
 ../obj_g/transform$o :	$(srcdir)/transform.c \
 			$(HEADER_DEPS) \
 			transform.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../progs/transform.c -o ../obj_g/transform$o
+
+../obj_g/tty_settings$o :	$(srcdir)/tty_settings.c \
+			$(HEADER_DEPS) \
+			tty_settings.h
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../progs/tty_settings.c -o ../obj_g/tty_settings$o
 
 depend : ${AUTO_SRC}
 	makedepend -- ${CPPFLAGS} -- ${C_SRC}

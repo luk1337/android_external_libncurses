@@ -1,6 +1,6 @@
-# $Id: Makefile.in,v 1.115 2015/08/05 23:15:41 tom Exp $
+# $Id: Makefile.in,v 1.120 2018/01/15 19:28:45 tom Exp $
 ##############################################################################
-# Copyright (c) 1998-2014,2015 Free Software Foundation, Inc.                #
+# Copyright (c) 1998-2017,2018 Free Software Foundation, Inc.                #
 #                                                                            #
 # Permission is hereby granted, free of charge, to any person obtaining a    #
 # copy of this software and associated documentation files (the "Software"), #
@@ -46,18 +46,21 @@ o		= .o
 MODEL		= ../objects
 top_srcdir	= ..
 srcdir		= .
-prefix		= /system
+prefix		= /usr
 exec_prefix	= ${prefix}
 datarootdir	= ${prefix}/share
 
 bindir		= ${exec_prefix}/bin
 libdir		= ${exec_prefix}/lib
 includedir	= ${prefix}/include
-includesubdir	= /ncurses
+includesubdir	= 
+datarootdir	= ${prefix}/share
+datadir		= ${datarootdir}
 
 BINDIR		= $(DESTDIR)$(bindir)
 LIBDIR		= $(DESTDIR)$(libdir)
 INCLUDEDIR	= $(DESTDIR)$(includedir)$(includesubdir)
+DATADIR		= $(DESTDIR)$(datadir)
 
 PACKAGE		= ncurses
 
@@ -67,19 +70,21 @@ LIBTOOL_CLEAN	=
 LIBTOOL_COMPILE	= 
 LIBTOOL_LINK	= ${CC}
 
-INSTALL		= /usr/bin/install -c
-INSTALL_PROG	= ${INSTALL}
+INSTALL		= /usr/bin/install -c 
+INSTALL_PROG	= ${INSTALL} -s
+INSTALL_SCRIPT	= ${INSTALL}
+INSTALL_DATA	= ${INSTALL} -m 644
 transform	= s,x,x,
 TRANSFORM	= sed 's/$x$$//'|sed '$(transform)'|sed 's/$$/$x/'
 
-CTAGS		= 
+CTAGS		= ctags
 ETAGS		= 
 
-CC		= /home/shade/dev/cm/13/prebuilts/clang/linux-x86/host/3.6/bin/clang
-CPP		= /home/shade/dev/cm/13/prebuilts/clang/linux-x86/host/3.6/bin/clang -E
+CC		= gcc
+CPP		= gcc -E
 
-CFLAGS		= -target arm-linux-androideabi -I/home/shade/dev/cm/13/bionic/libc/include -I/home/shade/dev/cm/13/bionic/libc/kernel/uapi -I/home/shade/dev/cm/13/bionic/libc/arch-arm/include -I/home/shade/dev/cm/13/bionic/libc/kernel/uapi/asm-arm --sysroot=/home/shade/dev/cm/13/prebuilts/ndk/current/platforms/android-21/arch-arm -L/home/shade/dev/cm/13/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9/lib/gcc/arm-linux-androideabi/4.9.x-google/armv7-a -I/home/shade/dev/cm/13/bionic/libm/include -I/home/shade/dev/cm/13/bionic/libm/include/arm -I/home/shade/dev/cm/13/external/libselinux/include -I/home/shade/dev/cm/13/system/core/include -I/home/shade/dev/cm/13/bionic/libc/dns/include -I.  --param max-inline-insns-single=1200 
-CPPFLAGS	= -I. -I$(srcdir) -I../test -DHAVE_CONFIG_H -I. -I../include   -D_XOPEN_SOURCE=500 -D_FILE_OFFSET_BITS=64  -DNDEBUG
+CFLAGS		= -O2 --param max-inline-insns-single=1200 
+CPPFLAGS	= -I. -I$(srcdir) -I../test -DHAVE_CONFIG_H -DDATA_DIR=\"$(datadir)\" -I. -I../include  -D_GNU_SOURCE -D_DEFAULT_SOURCE -DNDEBUG
 
 CCFLAGS		= $(CPPFLAGS) $(CFLAGS)
 
@@ -91,17 +96,17 @@ CFLAGS_SHARED	= $(CCFLAGS) -fPIC
 
 CFLAGS_DEFAULT	= $(CFLAGS_NORMAL)
 
-REL_VERSION	= 6.0
+REL_VERSION	= 6.1
 ABI_VERSION	= 6
-LOCAL_LIBDIR	= /home/shade/dev/cm/13/external/libncurses/lib
+LOCAL_LIBDIR	= /mnt/ssd-2/lineage-18.0/external/libncurses/lib
 LOCAL_LIBS	= ../lib/libform.a ../lib/libmenu.a ../lib/libpanel.a ../lib/libncurses.a 
 MATH_LIB	= -lm
-TEST_LIBS	= 
+TEST_LIBS	= -lutil
 
-LD		= arm-linux-androideabi-ld
+LD		= ld
 LINK		=  $(LIBTOOL_LINK) $(CFLAGS)
 
-LDFLAGS		=   -L/home/shade/dev/cm/13/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9/lib/gcc/arm-linux-androideabi/4.9.x-google/armv7-a -L/home/shade/dev/cm/13/out/target/product/bacon/system/lib -lc -lselinux -lcutils
+LDFLAGS		=   
 
 LDFLAGS_LIBTOOL	= $(LDFLAGS) $(CFLAGS_LIBTOOL)
 LDFLAGS_NORMAL	= $(LDFLAGS) $(CFLAGS_NORMAL)
@@ -127,7 +132,7 @@ LDFLAGS_CURSES	= $(LDFLAGS_NORMAL) $(LIBS_CURSES)
 LIBS_TINFO	=  -lncurses   $(TEST_LIBS) $(MATH_LIB)
 LDFLAGS_TINFO	= -L../lib $(LDFLAGS_NORMAL) $(LIBS_TINFO)
 
-LINT		= lint
+LINT		= 
 LINT_OPTS	= 
 LINT_LIBS	= -lform -lmenu -lpanel -lncurses 
 
@@ -150,6 +155,7 @@ TESTS	= $(destdir)background$x \
 	  $(destdir)demo_forms$x \
 	  $(destdir)demo_keyok$x \
 	  $(destdir)demo_menus$x \
+	  $(destdir)demo_new_pair$x \
 	  $(destdir)demo_panels$x \
 	  $(destdir)demo_termcap$x \
 	  $(destdir)demo_terminfo$x \
@@ -158,7 +164,9 @@ TESTS	= $(destdir)background$x \
 	  $(destdir)dots_curses$x \
 	  $(destdir)dots_mvcur$x \
 	  $(destdir)dots_termcap$x \
+	  $(destdir)dots_xcurses$x \
 	  $(destdir)echochar$x \
+	  $(destdir)extended_color$x \
 	  $(destdir)filter$x \
 	  $(destdir)firework$x \
 	  $(destdir)firstlast$x \
@@ -175,14 +183,18 @@ TESTS	= $(destdir)background$x \
 	  $(destdir)key_names$x \
 	  $(destdir)keynames$x \
 	  $(destdir)knight$x \
+	  $(destdir)list_keys$x \
 	  $(destdir)lrtest$x \
 	  $(destdir)movewindow$x \
 	  $(destdir)ncurses$x \
+	  $(destdir)padview$x \
+	  $(destdir)picsmap$x \
 	  $(destdir)newdemo$x \
 	  $(destdir)railroad$x \
 	  $(destdir)rain$x \
 	  $(destdir)redraw$x \
 	  $(destdir)savescreen$x \
+	  $(destdir)sp_tinfo$x \
 	  $(destdir)tclock$x \
 	  $(destdir)test_add_wchstr$x \
 	  $(destdir)test_addchstr$x \
@@ -195,6 +207,8 @@ TESTS	= $(destdir)background$x \
 	  $(destdir)test_inwstr$x \
 	  $(destdir)test_opaque$x \
 	  $(destdir)test_setupterm$x \
+	  $(destdir)test_sgr$x \
+	  $(destdir)test_termattrs$x \
 	  $(destdir)test_vid_puts$x \
 	  $(destdir)test_vidputs$x \
 	  $(destdir)testaddch$x \
@@ -203,6 +217,14 @@ TESTS	= $(destdir)background$x \
 	  $(destdir)view$x \
 	  $(destdir)worm$x \
 	  $(destdir)xmas$x
+SCRIPTS = \
+	$(srcdir)/savescreen.sh \
+	$(srcdir)/tput-colorcube \
+	$(srcdir)/tput-initc \
+	$(srcdir)/tracemunch
+DATAFILES = \
+	$(srcdir)/*.x* \
+	$(srcdir)/*.dat
 
 all: $(TESTS)
 
@@ -235,7 +257,7 @@ realclean :: distclean
 
 lint:
 	$(SHELL) -c 'for N in $(TESTS); do echo LINT:$$N; $(LINT) $(LINT_OPTS) $(CPPFLAGS) $(srcdir)/$$N.c $(LINT_LIBS); done'
-$(BINDIR) :
+$(BINDIR) $(DATADIR) :
 	mkdir -p $@
 
 $(destdir)background$x: $(MODEL)/background$o $(LOCAL_LIBS)
@@ -250,11 +272,11 @@ $(destdir)bs$x: $(MODEL)/bs$o $(LOCAL_LIBS)
 $(destdir)cardfile$x: $(MODEL)/cardfile$o $(LOCAL_LIBS)
 	$(LINK) -o $@ $(MODEL)/cardfile$o $(LDFLAGS_DEFAULT)
 
-$(destdir)chgat$x: $(MODEL)/chgat$o $(LOCAL_LIBS)
-	$(LINK) -o $@ $(MODEL)/chgat$o $(LDFLAGS_CURSES)
+$(destdir)chgat$x: $(MODEL)/chgat$o $(MODEL)/popup_msg$o $(LOCAL_LIBS)
+	$(LINK) -o $@ $(MODEL)/chgat$o $(MODEL)/popup_msg$o $(LDFLAGS_CURSES)
 
-$(destdir)clip_printw$x: $(MODEL)/clip_printw$o $(LOCAL_LIBS)
-	$(LINK) -o $@ $(MODEL)/clip_printw$o $(LDFLAGS_CURSES)
+$(destdir)clip_printw$x: $(MODEL)/clip_printw$o $(MODEL)/popup_msg$o $(LOCAL_LIBS)
+	$(LINK) -o $@ $(MODEL)/clip_printw$o $(MODEL)/popup_msg$o $(LDFLAGS_CURSES)
 
 $(destdir)color_set$x: $(MODEL)/color_set$o $(LOCAL_LIBS)
 	$(LINK) -o $@ $(MODEL)/color_set$o $(LDFLAGS_CURSES)
@@ -265,14 +287,17 @@ $(destdir)demo_altkeys$x: $(MODEL)/demo_altkeys$o $(LOCAL_LIBS)
 $(destdir)demo_defkey$x: $(MODEL)/demo_defkey$o $(LOCAL_LIBS)
 	$(LINK) -o $@ $(MODEL)/demo_defkey$o $(LDFLAGS_CURSES)
 
-$(destdir)demo_forms$x: $(MODEL)/demo_forms$o $(MODEL)/edit_field$o $(LOCAL_LIBS)
-	$(LINK) -o $@ $(MODEL)/demo_forms$o $(MODEL)/edit_field$o $(LDFLAGS_DEFAULT)
+$(destdir)demo_forms$x: $(MODEL)/demo_forms$o $(MODEL)/edit_field$o $(MODEL)/popup_msg$o $(LOCAL_LIBS)
+	$(LINK) -o $@ $(MODEL)/demo_forms$o $(MODEL)/edit_field$o $(MODEL)/popup_msg$o $(LDFLAGS_DEFAULT)
 
 $(destdir)demo_keyok$x: $(MODEL)/demo_keyok$o $(LOCAL_LIBS)
 	$(LINK) -o $@ $(MODEL)/demo_keyok$o $(LDFLAGS_CURSES)
 
 $(destdir)demo_menus$x: $(MODEL)/demo_menus$o $(LOCAL_LIBS)
 	$(LINK) -o $@ $(MODEL)/demo_menus$o $(LDFLAGS_DEFAULT)
+
+$(destdir)demo_new_pair$x: $(MODEL)/demo_new_pair$o $(MODEL)/popup_msg$o $(LOCAL_LIBS)
+	$(LINK) -o $@ $(MODEL)/demo_new_pair$o $(MODEL)/popup_msg$o $(LDFLAGS_DEFAULT)
 
 $(destdir)demo_panels$x: $(MODEL)/demo_panels$o $(LOCAL_LIBS)
 	$(LINK) -o $@ $(MODEL)/demo_panels$o $(LDFLAGS_DEFAULT)
@@ -298,8 +323,14 @@ $(destdir)dots_mvcur$x: $(MODEL)/dots_mvcur$o $(LOCAL_LIBS)
 $(destdir)dots_termcap$x: $(MODEL)/dots_termcap$o $(LOCAL_LIBS)
 	$(LINK) -o $@ $(MODEL)/dots_termcap$o $(LDFLAGS_TINFO)
 
+$(destdir)dots_xcurses$x: $(MODEL)/dots_xcurses$o $(LOCAL_LIBS)
+	$(LINK) -o $@ $(MODEL)/dots_xcurses$o $(LDFLAGS_CURSES)
+
 $(destdir)echochar$x: $(MODEL)/echochar$o $(LOCAL_LIBS)
 	$(LINK) -o $@ $(MODEL)/echochar$o $(LDFLAGS_CURSES)
+
+$(destdir)extended_color$x: $(MODEL)/extended_color$o $(LOCAL_LIBS)
+	$(LINK) -o $@ $(MODEL)/extended_color$o $(LDFLAGS_CURSES)
 
 $(destdir)filter$x: $(MODEL)/filter$o $(LOCAL_LIBS)
 	$(LINK) -o $@ $(MODEL)/filter$o $(LDFLAGS_CURSES)
@@ -313,8 +344,8 @@ $(destdir)firstlast$x: $(MODEL)/firstlast$o $(LOCAL_LIBS)
 $(destdir)foldkeys$x: $(MODEL)/foldkeys$o $(LOCAL_LIBS)
 	$(LINK) -o $@ $(MODEL)/foldkeys$o $(LDFLAGS_CURSES)
 
-$(destdir)form_driver_w$x: $(MODEL)/form_driver_w$o $(LOCAL_LIBS)
-	$(LINK) -o $@ $(MODEL)/form_driver_w$o $(LDFLAGS_DEFAULT)
+$(destdir)form_driver_w$x: $(MODEL)/form_driver_w$o $(MODEL)/popup_msg$o $(LOCAL_LIBS)
+	$(LINK) -o $@ $(MODEL)/form_driver_w$o $(MODEL)/popup_msg$o $(LDFLAGS_DEFAULT)
 
 $(destdir)gdc$x: $(MODEL)/gdc$o $(LOCAL_LIBS)
 	$(LINK) -o $@ $(MODEL)/gdc$o $(LDFLAGS_CURSES)
@@ -325,17 +356,17 @@ $(destdir)hanoi$x: $(MODEL)/hanoi$o $(LOCAL_LIBS)
 $(destdir)hashtest$x: $(MODEL)/hashtest$o $(LOCAL_LIBS)
 	$(LINK) -o $@ $(MODEL)/hashtest$o $(LDFLAGS_CURSES)
 
-$(destdir)inch_wide$x: $(MODEL)/inch_wide$o $(LOCAL_LIBS)
-	$(LINK) -o $@ $(MODEL)/inch_wide$o $(LDFLAGS_CURSES)
+$(destdir)inch_wide$x: $(MODEL)/inch_wide$o $(MODEL)/popup_msg$o $(LOCAL_LIBS)
+	$(LINK) -o $@ $(MODEL)/inch_wide$o $(MODEL)/popup_msg$o $(LDFLAGS_CURSES)
 
-$(destdir)inchs$x: $(MODEL)/inchs$o $(LOCAL_LIBS)
-	$(LINK) -o $@ $(MODEL)/inchs$o $(LDFLAGS_CURSES)
+$(destdir)inchs$x: $(MODEL)/inchs$o $(MODEL)/popup_msg$o $(LOCAL_LIBS)
+	$(LINK) -o $@ $(MODEL)/inchs$o $(MODEL)/popup_msg$o $(LDFLAGS_CURSES)
 
 $(destdir)ins_wide$x: $(MODEL)/ins_wide$o $(LOCAL_LIBS)
 	$(LINK) -o $@ $(MODEL)/ins_wide$o $(LDFLAGS_CURSES)
 
-$(destdir)insdelln$x: $(MODEL)/insdelln$o $(LOCAL_LIBS)
-	$(LINK) -o $@ $(MODEL)/insdelln$o $(LDFLAGS_CURSES)
+$(destdir)insdelln$x: $(MODEL)/insdelln$o $(MODEL)/popup_msg$o $(LOCAL_LIBS)
+	$(LINK) -o $@ $(MODEL)/insdelln$o $(MODEL)/popup_msg$o $(LDFLAGS_CURSES)
 
 $(destdir)inserts$x: $(MODEL)/inserts$o $(LOCAL_LIBS)
 	$(LINK) -o $@ $(MODEL)/inserts$o $(LDFLAGS_CURSES)
@@ -349,14 +380,23 @@ $(destdir)keynames$x: $(MODEL)/keynames$o $(LOCAL_LIBS)
 $(destdir)knight$x: $(MODEL)/knight$o $(LOCAL_LIBS)
 	$(LINK) -o $@ $(MODEL)/knight$o $(LDFLAGS_CURSES)
 
+$(destdir)list_keys$x: $(MODEL)/list_keys$o $(LOCAL_LIBS)
+	$(LINK) -o $@ $(MODEL)/list_keys$o $(LDFLAGS_TINFO)
+
 $(destdir)lrtest$x: $(MODEL)/lrtest$o $(LOCAL_LIBS)
 	$(LINK) -o $@ $(MODEL)/lrtest$o $(LDFLAGS_CURSES)
 
-$(destdir)movewindow$x: $(MODEL)/movewindow$o $(LOCAL_LIBS)
-	$(LINK) -o $@ $(MODEL)/movewindow$o $(LDFLAGS_CURSES)
+$(destdir)movewindow$x: $(MODEL)/movewindow$o $(MODEL)/popup_msg$o $(LOCAL_LIBS)
+	$(LINK) -o $@ $(MODEL)/movewindow$o $(MODEL)/popup_msg$o $(LDFLAGS_CURSES)
 
 $(destdir)ncurses$x: $(MODEL)/ncurses$o $(LOCAL_LIBS)
 	$(LINK) -o $@ $(MODEL)/ncurses$o $(LDFLAGS_DEFAULT)
+
+$(destdir)padview$x: $(MODEL)/padview$o $(MODEL)/popup_msg$o $(LOCAL_LIBS)
+	$(LINK) -o $@ $(MODEL)/padview$o $(MODEL)/popup_msg$o $(LDFLAGS_CURSES)
+
+$(destdir)picsmap$x: $(MODEL)/picsmap$o $(LOCAL_LIBS)
+	$(LINK) -o $@ $(MODEL)/picsmap$o $(LDFLAGS_CURSES)
 
 $(destdir)newdemo$x: $(MODEL)/newdemo$o $(LOCAL_LIBS)
 	$(LINK) -o $@ $(MODEL)/newdemo$o $(LDFLAGS_CURSES)
@@ -364,14 +404,17 @@ $(destdir)newdemo$x: $(MODEL)/newdemo$o $(LOCAL_LIBS)
 $(destdir)railroad$x: $(MODEL)/railroad$o $(LOCAL_LIBS)
 	$(LINK) -o $@ $(MODEL)/railroad$o $(LDFLAGS_TINFO)
 
-$(destdir)rain$x: $(MODEL)/rain$o $(LOCAL_LIBS)
-	$(LINK) -o $@ $(MODEL)/rain$o $(LDFLAGS_THREADS)
+$(destdir)rain$x: $(MODEL)/rain$o $(MODEL)/popup_msg$o $(LOCAL_LIBS)
+	$(LINK) -o $@ $(MODEL)/rain$o $(MODEL)/popup_msg$o $(LDFLAGS_THREADS)
 
-$(destdir)redraw$x: $(MODEL)/redraw$o $(LOCAL_LIBS)
-	$(LINK) -o $@ $(MODEL)/redraw$o $(LDFLAGS_CURSES)
+$(destdir)redraw$x: $(MODEL)/redraw$o $(MODEL)/popup_msg$o $(LOCAL_LIBS)
+	$(LINK) -o $@ $(MODEL)/redraw$o $(MODEL)/popup_msg$o $(LDFLAGS_CURSES)
 
-$(destdir)savescreen$x: $(MODEL)/savescreen$o $(LOCAL_LIBS)
-	$(LINK) -o $@ $(MODEL)/savescreen$o $(LDFLAGS_CURSES)
+$(destdir)savescreen$x: $(MODEL)/savescreen$o $(MODEL)/popup_msg$o $(LOCAL_LIBS)
+	$(LINK) -o $@ $(MODEL)/savescreen$o $(MODEL)/popup_msg$o $(LDFLAGS_CURSES)
+
+$(destdir)sp_tinfo$x: $(MODEL)/sp_tinfo$o $(LOCAL_LIBS)
+	$(LINK) -o $@ $(MODEL)/sp_tinfo$o $(LDFLAGS_TINFO)
 
 $(destdir)tclock$x: $(MODEL)/tclock$o $(LOCAL_LIBS)
 	$(LINK) -o $@ $(MODEL)/tclock$o $(LDFLAGS_CURSES)
@@ -391,11 +434,11 @@ $(destdir)test_addwstr$x: $(MODEL)/test_addwstr$o $(LOCAL_LIBS)
 $(destdir)test_arrays$x: $(MODEL)/test_arrays$o $(LOCAL_LIBS)
 	$(LINK) -o $@ $(MODEL)/test_arrays$o $(LDFLAGS_TINFO)
 
-$(destdir)test_get_wstr$x: $(MODEL)/test_get_wstr$o $(LOCAL_LIBS)
-	$(LINK) -o $@ $(MODEL)/test_get_wstr$o $(LDFLAGS_CURSES)
+$(destdir)test_get_wstr$x: $(MODEL)/test_get_wstr$o $(MODEL)/popup_msg$o $(LOCAL_LIBS)
+	$(LINK) -o $@ $(MODEL)/test_get_wstr$o $(MODEL)/popup_msg$o $(LDFLAGS_CURSES)
 
-$(destdir)test_getstr$x: $(MODEL)/test_getstr$o $(LOCAL_LIBS)
-	$(LINK) -o $@ $(MODEL)/test_getstr$o $(LDFLAGS_CURSES)
+$(destdir)test_getstr$x: $(MODEL)/test_getstr$o $(MODEL)/popup_msg$o $(LOCAL_LIBS)
+	$(LINK) -o $@ $(MODEL)/test_getstr$o $(MODEL)/popup_msg$o $(LDFLAGS_CURSES)
 
 $(destdir)test_instr$x: $(MODEL)/test_instr$o $(LOCAL_LIBS)
 	$(LINK) -o $@ $(MODEL)/test_instr$o $(LDFLAGS_CURSES)
@@ -408,6 +451,12 @@ $(destdir)test_opaque$x: $(MODEL)/test_opaque$o $(LOCAL_LIBS)
 
 $(destdir)test_setupterm$x: $(MODEL)/test_setupterm$o $(LOCAL_LIBS)
 	$(LINK) -o $@ $(MODEL)/test_setupterm$o $(LDFLAGS_CURSES)
+
+$(destdir)test_sgr$x: $(MODEL)/test_sgr$o $(LOCAL_LIBS)
+	$(LINK) -o $@ $(MODEL)/test_sgr$o $(LDFLAGS_TINFO)
+
+$(destdir)test_termattrs$x: $(MODEL)/test_termattrs$o $(LOCAL_LIBS)
+	$(LINK) -o $@ $(MODEL)/test_termattrs$o $(LDFLAGS_CURSES)
 
 $(destdir)test_vid_puts$x: $(MODEL)/test_vid_puts$o $(LOCAL_LIBS)
 	$(LINK) -o $@ $(MODEL)/test_vid_puts$o $(LDFLAGS_CURSES)
@@ -424,8 +473,8 @@ $(destdir)testcurs$x: $(MODEL)/testcurs$o $(LOCAL_LIBS)
 $(destdir)testscanw$x: $(MODEL)/testscanw$o $(LOCAL_LIBS)
 	$(LINK) -o $@ $(MODEL)/testscanw$o $(LDFLAGS_CURSES)
 
-$(destdir)view$x: $(MODEL)/view$o $(LOCAL_LIBS)
-	$(LINK) -o $@ $(MODEL)/view$o $(LDFLAGS_CURSES)
+$(destdir)view$x: $(MODEL)/view$o $(MODEL)/popup_msg$o $(LOCAL_LIBS)
+	$(LINK) -o $@ $(MODEL)/view$o $(MODEL)/popup_msg$o $(LDFLAGS_CURSES)
 
 $(destdir)worm$x: $(MODEL)/worm$o $(LOCAL_LIBS)
 	$(LINK) -o $@ $(MODEL)/worm$o $(LDFLAGS_THREADS)
@@ -435,9 +484,9 @@ $(destdir)xmas$x: $(MODEL)/xmas$o $(LOCAL_LIBS)
 
 # Generated by CF_LIB_RULES
 resulting.map: 
-	sed  -e "s/NCURSES\([WT]\+\)\?_/NCURSES\16_/g" -e "/deprecated in ABI6/d" <  >$@
+	mawk 'BEGIN { skip = 1; last=""; } /deprecated in ABI6/ { next; }{ sub("NCURSES([WT]+)?", "&6"); } { if ( last != "" && ( skip == 0 || $$0 !~ /}/ ) ) { print last; } skip = 0; last = $$0; } END { print last; }' <  >$@
 
-clean::
+distclean::
 	rm -f resulting.map
 
 # generated by mk-0th.awk
@@ -465,6 +514,7 @@ C_SRC = \
 	$(srcdir)/demo_forms.c \
 	$(srcdir)/demo_keyok.c \
 	$(srcdir)/demo_menus.c \
+	$(srcdir)/demo_new_pair.c \
 	$(srcdir)/demo_panels.c \
 	$(srcdir)/demo_termcap.c \
 	$(srcdir)/demo_terminfo.c \
@@ -473,8 +523,10 @@ C_SRC = \
 	$(srcdir)/dots_curses.c \
 	$(srcdir)/dots_mvcur.c \
 	$(srcdir)/dots_termcap.c \
+	$(srcdir)/dots_xcurses.c \
 	$(srcdir)/echochar.c \
 	$(srcdir)/edit_field.c \
+	$(srcdir)/extended_color.c \
 	$(srcdir)/filter.c \
 	$(srcdir)/firework.c \
 	$(srcdir)/firstlast.c \
@@ -491,14 +543,19 @@ C_SRC = \
 	$(srcdir)/key_names.c \
 	$(srcdir)/keynames.c \
 	$(srcdir)/knight.c \
+	$(srcdir)/list_keys.c \
 	$(srcdir)/lrtest.c \
 	$(srcdir)/movewindow.c \
 	$(srcdir)/ncurses.c \
 	$(srcdir)/newdemo.c \
+	$(srcdir)/padview.c \
+	$(srcdir)/picsmap.c \
+	$(srcdir)/popup_msg.c \
 	$(srcdir)/railroad.c \
 	$(srcdir)/rain.c \
 	$(srcdir)/redraw.c \
 	$(srcdir)/savescreen.c \
+	$(srcdir)/sp_tinfo.c \
 	$(srcdir)/tclock.c \
 	$(srcdir)/test_add_wchstr.c \
 	$(srcdir)/test_addchstr.c \
@@ -511,6 +568,8 @@ C_SRC = \
 	$(srcdir)/test_inwstr.c \
 	$(srcdir)/test_opaque.c \
 	$(srcdir)/test_setupterm.c \
+	$(srcdir)/test_sgr.c \
+	$(srcdir)/test_termattrs.c \
 	$(srcdir)/test_vid_puts.c \
 	$(srcdir)/test_vidputs.c \
 	$(srcdir)/testaddch.c \
@@ -541,10 +600,10 @@ lintlib :
 #  ReLink:        no
 #  DoLinks:       yes
 #  rmSoLocs:      no
-#  ldconfig:      :
-#  overwrite:     no
+#  ldconfig:      /usr/sbin/ldconfig
+#  overwrite:     yes
 #  depend:        ../include/ncurses_cfg.h ./test.priv.h
-#  host:          arm-unknown-linux-androideabi
+#  host:          x86_64-pc-linux-gnu
 
 NORMAL_OBJS = \
 	../objects/background$o \
@@ -559,6 +618,7 @@ NORMAL_OBJS = \
 	../objects/demo_forms$o \
 	../objects/demo_keyok$o \
 	../objects/demo_menus$o \
+	../objects/demo_new_pair$o \
 	../objects/demo_panels$o \
 	../objects/demo_termcap$o \
 	../objects/demo_terminfo$o \
@@ -567,8 +627,10 @@ NORMAL_OBJS = \
 	../objects/dots_curses$o \
 	../objects/dots_mvcur$o \
 	../objects/dots_termcap$o \
+	../objects/dots_xcurses$o \
 	../objects/echochar$o \
 	../objects/edit_field$o \
+	../objects/extended_color$o \
 	../objects/filter$o \
 	../objects/firework$o \
 	../objects/firstlast$o \
@@ -585,14 +647,19 @@ NORMAL_OBJS = \
 	../objects/key_names$o \
 	../objects/keynames$o \
 	../objects/knight$o \
+	../objects/list_keys$o \
 	../objects/lrtest$o \
 	../objects/movewindow$o \
 	../objects/ncurses$o \
 	../objects/newdemo$o \
+	../objects/padview$o \
+	../objects/picsmap$o \
+	../objects/popup_msg$o \
 	../objects/railroad$o \
 	../objects/rain$o \
 	../objects/redraw$o \
 	../objects/savescreen$o \
+	../objects/sp_tinfo$o \
 	../objects/tclock$o \
 	../objects/test_add_wchstr$o \
 	../objects/test_addchstr$o \
@@ -605,6 +672,8 @@ NORMAL_OBJS = \
 	../objects/test_inwstr$o \
 	../objects/test_opaque$o \
 	../objects/test_setupterm$o \
+	../objects/test_sgr$o \
+	../objects/test_termattrs$o \
 	../objects/test_vid_puts$o \
 	../objects/test_vidputs$o \
 	../objects/testaddch$o \
@@ -628,7 +697,7 @@ clean ::
 #   echo:       yes
 #   subset:     ticlib+termlib+ext_tinfo+base+ext_funcs
 #   crenames:   yes
-#   cxxrenames: 
+#   cxxrenames: yes
 #   traces:     DEBUG
 #   srcdir:     .
 
@@ -651,11 +720,13 @@ clean ::
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/cardfile.c -o ../objects/cardfile$o
 
 ../objects/chgat$o :	$(srcdir)/chgat.c \
-			$(HEADER_DEPS)
+			$(HEADER_DEPS) \
+			$(srcdir)/popup_msg.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/chgat.c -o ../objects/chgat$o
 
 ../objects/clip_printw$o :	$(srcdir)/clip_printw.c \
-			$(HEADER_DEPS)
+			$(HEADER_DEPS) \
+			$(srcdir)/popup_msg.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/clip_printw.c -o ../objects/clip_printw$o
 
 ../objects/color_set$o :	$(srcdir)/color_set.c \
@@ -683,6 +754,11 @@ clean ::
 			$(HEADER_DEPS) \
 			../include/menu.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/demo_menus.c -o ../objects/demo_menus$o
+
+../objects/demo_new_pair$o :	$(srcdir)/demo_new_pair.c \
+			$(HEADER_DEPS) \
+			$(srcdir)/popup_msg.h
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/demo_new_pair.c -o ../objects/demo_new_pair$o
 
 ../objects/demo_panels$o :	$(srcdir)/demo_panels.c \
 			$(HEADER_DEPS) \
@@ -717,14 +793,23 @@ clean ::
 			$(HEADER_DEPS)
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/dots_termcap.c -o ../objects/dots_termcap$o
 
+../objects/dots_xcurses$o :	$(srcdir)/dots_xcurses.c \
+			$(HEADER_DEPS)
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/dots_xcurses.c -o ../objects/dots_xcurses$o
+
 ../objects/echochar$o :	$(srcdir)/echochar.c \
 			$(HEADER_DEPS)
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/echochar.c -o ../objects/echochar$o
 
 ../objects/edit_field$o :	$(srcdir)/edit_field.c \
 			$(HEADER_DEPS) \
-			$(srcdir)/edit_field.h
+			$(srcdir)/edit_field.h \
+			$(srcdir)/popup_msg.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/edit_field.c -o ../objects/edit_field$o
+
+../objects/extended_color$o :	$(srcdir)/extended_color.c \
+			$(HEADER_DEPS)
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/extended_color.c -o ../objects/extended_color$o
 
 ../objects/filter$o :	$(srcdir)/filter.c \
 			$(HEADER_DEPS)
@@ -743,7 +828,8 @@ clean ::
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/foldkeys.c -o ../objects/foldkeys$o
 
 ../objects/form_driver_w$o :	$(srcdir)/form_driver_w.c \
-			$(HEADER_DEPS)
+			$(HEADER_DEPS) \
+			$(srcdir)/popup_msg.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/form_driver_w.c -o ../objects/form_driver_w$o
 
 ../objects/gdc$o :	$(srcdir)/gdc.c \
@@ -759,11 +845,13 @@ clean ::
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/hashtest.c -o ../objects/hashtest$o
 
 ../objects/inch_wide$o :	$(srcdir)/inch_wide.c \
-			$(HEADER_DEPS)
+			$(HEADER_DEPS) \
+			$(srcdir)/popup_msg.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/inch_wide.c -o ../objects/inch_wide$o
 
 ../objects/inchs$o :	$(srcdir)/inchs.c \
-			$(HEADER_DEPS)
+			$(HEADER_DEPS) \
+			$(srcdir)/popup_msg.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/inchs.c -o ../objects/inchs$o
 
 ../objects/ins_wide$o :	$(srcdir)/ins_wide.c \
@@ -772,7 +860,8 @@ clean ::
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/ins_wide.c -o ../objects/ins_wide$o
 
 ../objects/insdelln$o :	$(srcdir)/insdelln.c \
-			$(HEADER_DEPS)
+			$(HEADER_DEPS) \
+			$(srcdir)/popup_msg.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/insdelln.c -o ../objects/insdelln$o
 
 ../objects/inserts$o :	$(srcdir)/inserts.c \
@@ -792,12 +881,17 @@ clean ::
 			$(HEADER_DEPS)
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/knight.c -o ../objects/knight$o
 
+../objects/list_keys$o :	$(srcdir)/list_keys.c \
+			$(HEADER_DEPS)
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/list_keys.c -o ../objects/list_keys$o
+
 ../objects/lrtest$o :	$(srcdir)/lrtest.c \
 			$(HEADER_DEPS)
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/lrtest.c -o ../objects/lrtest$o
 
 ../objects/movewindow$o :	$(srcdir)/movewindow.c \
-			$(HEADER_DEPS)
+			$(HEADER_DEPS) \
+			$(srcdir)/popup_msg.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/movewindow.c -o ../objects/movewindow$o
 
 ../objects/ncurses$o :	$(srcdir)/ncurses.c \
@@ -811,21 +905,43 @@ clean ::
 			$(HEADER_DEPS)
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/newdemo.c -o ../objects/newdemo$o
 
+../objects/padview$o :	$(srcdir)/padview.c \
+			$(HEADER_DEPS) \
+			$(srcdir)/widechars.h \
+			$(srcdir)/popup_msg.h
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/padview.c -o ../objects/padview$o
+
+../objects/picsmap$o :	$(srcdir)/picsmap.c \
+			$(HEADER_DEPS)
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/picsmap.c -o ../objects/picsmap$o
+
+../objects/popup_msg$o :	$(srcdir)/popup_msg.c \
+			$(HEADER_DEPS) \
+			$(srcdir)/popup_msg.h
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/popup_msg.c -o ../objects/popup_msg$o
+
 ../objects/railroad$o :	$(srcdir)/railroad.c \
 			$(HEADER_DEPS)
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/railroad.c -o ../objects/railroad$o
 
 ../objects/rain$o :	$(srcdir)/rain.c \
-			$(HEADER_DEPS)
+			$(HEADER_DEPS) \
+			$(srcdir)/popup_msg.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/rain.c -o ../objects/rain$o
 
 ../objects/redraw$o :	$(srcdir)/redraw.c \
-			$(HEADER_DEPS)
+			$(HEADER_DEPS) \
+			$(srcdir)/popup_msg.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/redraw.c -o ../objects/redraw$o
 
 ../objects/savescreen$o :	$(srcdir)/savescreen.c \
-			$(HEADER_DEPS)
+			$(HEADER_DEPS) \
+			$(srcdir)/popup_msg.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/savescreen.c -o ../objects/savescreen$o
+
+../objects/sp_tinfo$o :	$(srcdir)/sp_tinfo.c \
+			$(HEADER_DEPS)
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/sp_tinfo.c -o ../objects/sp_tinfo$o
 
 ../objects/tclock$o :	$(srcdir)/tclock.c \
 			$(HEADER_DEPS)
@@ -879,6 +995,14 @@ clean ::
 			$(HEADER_DEPS)
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/test_setupterm.c -o ../objects/test_setupterm$o
 
+../objects/test_sgr$o :	$(srcdir)/test_sgr.c \
+			$(HEADER_DEPS)
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/test_sgr.c -o ../objects/test_sgr$o
+
+../objects/test_termattrs$o :	$(srcdir)/test_termattrs.c \
+			$(HEADER_DEPS)
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/test_termattrs.c -o ../objects/test_termattrs$o
+
 ../objects/test_vid_puts$o :	$(srcdir)/test_vid_puts.c \
 			$(HEADER_DEPS)
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/test_vid_puts.c -o ../objects/test_vid_puts$o
@@ -901,7 +1025,8 @@ clean ::
 
 ../objects/view$o :	$(srcdir)/view.c \
 			$(HEADER_DEPS) \
-			$(srcdir)/widechars.h
+			$(srcdir)/widechars.h \
+			$(srcdir)/popup_msg.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../test/view.c -o ../objects/view$o
 
 ../objects/worm$o :	$(srcdir)/worm.c \
@@ -931,10 +1056,10 @@ clean ::
 #  ReLink:        no
 #  DoLinks:       yes
 #  rmSoLocs:      no
-#  ldconfig:      :
-#  overwrite:     no
+#  ldconfig:      /usr/sbin/ldconfig
+#  overwrite:     yes
 #  depend:        ../include/ncurses_cfg.h ./test.priv.h
-#  host:          arm-unknown-linux-androideabi
+#  host:          x86_64-pc-linux-gnu
 
 DEBUG_OBJS = \
 	../obj_g/background$o \
@@ -949,6 +1074,7 @@ DEBUG_OBJS = \
 	../obj_g/demo_forms$o \
 	../obj_g/demo_keyok$o \
 	../obj_g/demo_menus$o \
+	../obj_g/demo_new_pair$o \
 	../obj_g/demo_panels$o \
 	../obj_g/demo_termcap$o \
 	../obj_g/demo_terminfo$o \
@@ -957,8 +1083,10 @@ DEBUG_OBJS = \
 	../obj_g/dots_curses$o \
 	../obj_g/dots_mvcur$o \
 	../obj_g/dots_termcap$o \
+	../obj_g/dots_xcurses$o \
 	../obj_g/echochar$o \
 	../obj_g/edit_field$o \
+	../obj_g/extended_color$o \
 	../obj_g/filter$o \
 	../obj_g/firework$o \
 	../obj_g/firstlast$o \
@@ -975,14 +1103,19 @@ DEBUG_OBJS = \
 	../obj_g/key_names$o \
 	../obj_g/keynames$o \
 	../obj_g/knight$o \
+	../obj_g/list_keys$o \
 	../obj_g/lrtest$o \
 	../obj_g/movewindow$o \
 	../obj_g/ncurses$o \
 	../obj_g/newdemo$o \
+	../obj_g/padview$o \
+	../obj_g/picsmap$o \
+	../obj_g/popup_msg$o \
 	../obj_g/railroad$o \
 	../obj_g/rain$o \
 	../obj_g/redraw$o \
 	../obj_g/savescreen$o \
+	../obj_g/sp_tinfo$o \
 	../obj_g/tclock$o \
 	../obj_g/test_add_wchstr$o \
 	../obj_g/test_addchstr$o \
@@ -995,6 +1128,8 @@ DEBUG_OBJS = \
 	../obj_g/test_inwstr$o \
 	../obj_g/test_opaque$o \
 	../obj_g/test_setupterm$o \
+	../obj_g/test_sgr$o \
+	../obj_g/test_termattrs$o \
 	../obj_g/test_vid_puts$o \
 	../obj_g/test_vidputs$o \
 	../obj_g/testaddch$o \
@@ -1018,7 +1153,7 @@ clean ::
 #   echo:       yes
 #   subset:     ticlib+termlib+ext_tinfo+base+ext_funcs
 #   crenames:   yes
-#   cxxrenames: 
+#   cxxrenames: yes
 #   traces:     DEBUG
 #   srcdir:     .
 
@@ -1041,11 +1176,13 @@ clean ::
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/cardfile.c -o ../obj_g/cardfile$o
 
 ../obj_g/chgat$o :	$(srcdir)/chgat.c \
-			$(HEADER_DEPS)
+			$(HEADER_DEPS) \
+			$(srcdir)/popup_msg.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/chgat.c -o ../obj_g/chgat$o
 
 ../obj_g/clip_printw$o :	$(srcdir)/clip_printw.c \
-			$(HEADER_DEPS)
+			$(HEADER_DEPS) \
+			$(srcdir)/popup_msg.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/clip_printw.c -o ../obj_g/clip_printw$o
 
 ../obj_g/color_set$o :	$(srcdir)/color_set.c \
@@ -1073,6 +1210,11 @@ clean ::
 			$(HEADER_DEPS) \
 			../include/menu.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/demo_menus.c -o ../obj_g/demo_menus$o
+
+../obj_g/demo_new_pair$o :	$(srcdir)/demo_new_pair.c \
+			$(HEADER_DEPS) \
+			$(srcdir)/popup_msg.h
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/demo_new_pair.c -o ../obj_g/demo_new_pair$o
 
 ../obj_g/demo_panels$o :	$(srcdir)/demo_panels.c \
 			$(HEADER_DEPS) \
@@ -1107,14 +1249,23 @@ clean ::
 			$(HEADER_DEPS)
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/dots_termcap.c -o ../obj_g/dots_termcap$o
 
+../obj_g/dots_xcurses$o :	$(srcdir)/dots_xcurses.c \
+			$(HEADER_DEPS)
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/dots_xcurses.c -o ../obj_g/dots_xcurses$o
+
 ../obj_g/echochar$o :	$(srcdir)/echochar.c \
 			$(HEADER_DEPS)
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/echochar.c -o ../obj_g/echochar$o
 
 ../obj_g/edit_field$o :	$(srcdir)/edit_field.c \
 			$(HEADER_DEPS) \
-			$(srcdir)/edit_field.h
+			$(srcdir)/edit_field.h \
+			$(srcdir)/popup_msg.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/edit_field.c -o ../obj_g/edit_field$o
+
+../obj_g/extended_color$o :	$(srcdir)/extended_color.c \
+			$(HEADER_DEPS)
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/extended_color.c -o ../obj_g/extended_color$o
 
 ../obj_g/filter$o :	$(srcdir)/filter.c \
 			$(HEADER_DEPS)
@@ -1133,7 +1284,8 @@ clean ::
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/foldkeys.c -o ../obj_g/foldkeys$o
 
 ../obj_g/form_driver_w$o :	$(srcdir)/form_driver_w.c \
-			$(HEADER_DEPS)
+			$(HEADER_DEPS) \
+			$(srcdir)/popup_msg.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/form_driver_w.c -o ../obj_g/form_driver_w$o
 
 ../obj_g/gdc$o :	$(srcdir)/gdc.c \
@@ -1149,11 +1301,13 @@ clean ::
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/hashtest.c -o ../obj_g/hashtest$o
 
 ../obj_g/inch_wide$o :	$(srcdir)/inch_wide.c \
-			$(HEADER_DEPS)
+			$(HEADER_DEPS) \
+			$(srcdir)/popup_msg.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/inch_wide.c -o ../obj_g/inch_wide$o
 
 ../obj_g/inchs$o :	$(srcdir)/inchs.c \
-			$(HEADER_DEPS)
+			$(HEADER_DEPS) \
+			$(srcdir)/popup_msg.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/inchs.c -o ../obj_g/inchs$o
 
 ../obj_g/ins_wide$o :	$(srcdir)/ins_wide.c \
@@ -1162,7 +1316,8 @@ clean ::
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/ins_wide.c -o ../obj_g/ins_wide$o
 
 ../obj_g/insdelln$o :	$(srcdir)/insdelln.c \
-			$(HEADER_DEPS)
+			$(HEADER_DEPS) \
+			$(srcdir)/popup_msg.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/insdelln.c -o ../obj_g/insdelln$o
 
 ../obj_g/inserts$o :	$(srcdir)/inserts.c \
@@ -1182,12 +1337,17 @@ clean ::
 			$(HEADER_DEPS)
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/knight.c -o ../obj_g/knight$o
 
+../obj_g/list_keys$o :	$(srcdir)/list_keys.c \
+			$(HEADER_DEPS)
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/list_keys.c -o ../obj_g/list_keys$o
+
 ../obj_g/lrtest$o :	$(srcdir)/lrtest.c \
 			$(HEADER_DEPS)
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/lrtest.c -o ../obj_g/lrtest$o
 
 ../obj_g/movewindow$o :	$(srcdir)/movewindow.c \
-			$(HEADER_DEPS)
+			$(HEADER_DEPS) \
+			$(srcdir)/popup_msg.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/movewindow.c -o ../obj_g/movewindow$o
 
 ../obj_g/ncurses$o :	$(srcdir)/ncurses.c \
@@ -1201,21 +1361,43 @@ clean ::
 			$(HEADER_DEPS)
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/newdemo.c -o ../obj_g/newdemo$o
 
+../obj_g/padview$o :	$(srcdir)/padview.c \
+			$(HEADER_DEPS) \
+			$(srcdir)/widechars.h \
+			$(srcdir)/popup_msg.h
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/padview.c -o ../obj_g/padview$o
+
+../obj_g/picsmap$o :	$(srcdir)/picsmap.c \
+			$(HEADER_DEPS)
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/picsmap.c -o ../obj_g/picsmap$o
+
+../obj_g/popup_msg$o :	$(srcdir)/popup_msg.c \
+			$(HEADER_DEPS) \
+			$(srcdir)/popup_msg.h
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/popup_msg.c -o ../obj_g/popup_msg$o
+
 ../obj_g/railroad$o :	$(srcdir)/railroad.c \
 			$(HEADER_DEPS)
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/railroad.c -o ../obj_g/railroad$o
 
 ../obj_g/rain$o :	$(srcdir)/rain.c \
-			$(HEADER_DEPS)
+			$(HEADER_DEPS) \
+			$(srcdir)/popup_msg.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/rain.c -o ../obj_g/rain$o
 
 ../obj_g/redraw$o :	$(srcdir)/redraw.c \
-			$(HEADER_DEPS)
+			$(HEADER_DEPS) \
+			$(srcdir)/popup_msg.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/redraw.c -o ../obj_g/redraw$o
 
 ../obj_g/savescreen$o :	$(srcdir)/savescreen.c \
-			$(HEADER_DEPS)
+			$(HEADER_DEPS) \
+			$(srcdir)/popup_msg.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/savescreen.c -o ../obj_g/savescreen$o
+
+../obj_g/sp_tinfo$o :	$(srcdir)/sp_tinfo.c \
+			$(HEADER_DEPS)
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/sp_tinfo.c -o ../obj_g/sp_tinfo$o
 
 ../obj_g/tclock$o :	$(srcdir)/tclock.c \
 			$(HEADER_DEPS)
@@ -1269,6 +1451,14 @@ clean ::
 			$(HEADER_DEPS)
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/test_setupterm.c -o ../obj_g/test_setupterm$o
 
+../obj_g/test_sgr$o :	$(srcdir)/test_sgr.c \
+			$(HEADER_DEPS)
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/test_sgr.c -o ../obj_g/test_sgr$o
+
+../obj_g/test_termattrs$o :	$(srcdir)/test_termattrs.c \
+			$(HEADER_DEPS)
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/test_termattrs.c -o ../obj_g/test_termattrs$o
+
 ../obj_g/test_vid_puts$o :	$(srcdir)/test_vid_puts.c \
 			$(HEADER_DEPS)
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/test_vid_puts.c -o ../obj_g/test_vid_puts$o
@@ -1291,7 +1481,8 @@ clean ::
 
 ../obj_g/view$o :	$(srcdir)/view.c \
 			$(HEADER_DEPS) \
-			$(srcdir)/widechars.h
+			$(srcdir)/widechars.h \
+			$(srcdir)/popup_msg.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../test/view.c -o ../obj_g/view$o
 
 ../obj_g/worm$o :	$(srcdir)/worm.c \

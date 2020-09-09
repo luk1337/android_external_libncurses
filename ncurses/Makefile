@@ -1,6 +1,6 @@
-# $Id: Makefile.in,v 1.147 2015/08/05 23:15:41 tom Exp $
+# $Id: Makefile.in,v 1.155 2018/01/15 19:28:45 tom Exp $
 ##############################################################################
-# Copyright (c) 1998-2014,2015 Free Software Foundation, Inc.                #
+# Copyright (c) 1998-2017,2018 Free Software Foundation, Inc.                #
 #                                                                            #
 # Permission is hereby granted, free of charge, to any person obtaining a    #
 # copy of this software and associated documentation files (the "Software"), #
@@ -59,14 +59,14 @@ MODEL		= normal
 DESTDIR		= 
 top_srcdir	= ..
 srcdir		= .
-prefix		= /system
+prefix		= /usr
 exec_prefix	= ${prefix}
 bindir		= ${exec_prefix}/bin
 libdir		= ${exec_prefix}/lib
 includedir	= ${prefix}/include
 datarootdir	= ${prefix}/share
 datadir		= ${datarootdir}
-includesubdir	= /ncurses
+includesubdir	= 
 
 INCLUDEDIR	= $(DESTDIR)$(includedir)$(includesubdir)
 
@@ -83,38 +83,38 @@ LT_UNDEF	=
 
 INSTALL		= /usr/bin/install -c
 INSTALL_LIB	= /usr/bin/install -c -m 644
-INSTALL_PROG	= ${INSTALL}
+INSTALL_PROG	= ${INSTALL} -s
 INSTALL_DATA	= ${INSTALL} -m 644
 
-AR		= arm-linux-androideabi-ar
-ARFLAGS		= -curv
+AR		= ar
+ARFLAGS		= -curvU
 AWK		= mawk
-LD		= arm-linux-androideabi-ld
+LD		= ld
 LN_S		= ln -s -f
-NM		= arm-linux-androideabi-nm
+NM		= nm
 
-CTAGS		= 
+CTAGS		= ctags
 ETAGS		= 
 
-CC		= /home/shade/dev/cm/13/prebuilts/clang/linux-x86/host/3.6/bin/clang
-CPP		= /home/shade/dev/cm/13/prebuilts/clang/linux-x86/host/3.6/bin/clang -E
-CFLAGS		= -target arm-linux-androideabi -I/home/shade/dev/cm/13/bionic/libc/include -I/home/shade/dev/cm/13/bionic/libc/kernel/uapi -I/home/shade/dev/cm/13/bionic/libc/arch-arm/include -I/home/shade/dev/cm/13/bionic/libc/kernel/uapi/asm-arm --sysroot=/home/shade/dev/cm/13/prebuilts/ndk/current/platforms/android-21/arch-arm -L/home/shade/dev/cm/13/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9/lib/gcc/arm-linux-androideabi/4.9.x-google/armv7-a -I/home/shade/dev/cm/13/bionic/libm/include -I/home/shade/dev/cm/13/bionic/libm/include/arm -I/home/shade/dev/cm/13/external/libselinux/include -I/home/shade/dev/cm/13/system/core/include -I/home/shade/dev/cm/13/bionic/libc/dns/include -I.  --param max-inline-insns-single=1200
+CC		= gcc
+CPP		= gcc -E
+CFLAGS		= -O2 --param max-inline-insns-single=1200
 
 INCDIR		= $(srcdir)/../include
-CPPFLAGS	= -DHAVE_CONFIG_H -I. -I../include   -D_XOPEN_SOURCE=500 -D_FILE_OFFSET_BITS=64  -DNDEBUG
+CPPFLAGS	= -DHAVE_CONFIG_H -I../ncurses -I. -I../include  -D_GNU_SOURCE -D_DEFAULT_SOURCE -DNDEBUG
 
 CCFLAGS		= $(CPPFLAGS) $(CFLAGS)
 
-BUILD_CPPFLAGS	= -DHAVE_CONFIG_H -DUSE_BUILD_CC -I../ncurses -I$(srcdir) -I../include -I$(INCDIR)  
-BUILD_CC	= gcc
-BUILD_CCFLAGS	= 
-BUILD_LDFLAGS	= 
-BUILD_LIBS	= 
+BUILD_CPPFLAGS	= -DHAVE_CONFIG_H -DUSE_BUILD_CC -I../ncurses -I$(srcdir) -I../include -I$(INCDIR) ${CPPFLAGS} 
+BUILD_CC	= ${CC}
+BUILD_CCFLAGS	= ${CFLAGS}
+BUILD_LDFLAGS	= ${LDFLAGS}
+BUILD_LIBS	= ${LIBS}
 
 # The executables built in this directory are used for generating source that
 # is compiled into the build, or are test-programs that are not installed.
 
-BUILD_EXEEXT	= 
+BUILD_EXEEXT	= $x
 x		= 
 
 CFLAGS_LIBTOOL	= $(CCFLAGS)
@@ -126,7 +126,7 @@ CFLAGS_SHARED	= $(CCFLAGS) -fPIC
 CFLAGS_DEFAULT	= $(CFLAGS_NORMAL)
 
 LINK		= $(LIBTOOL)
-LDFLAGS		= -L/home/shade/dev/cm/13/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9/lib/gcc/arm-linux-androideabi/4.9.x-google/armv7-a -L/home/shade/dev/cm/13/out/target/product/bacon/system/lib -lc -lselinux -lcutils  
+LDFLAGS		=   
 
 SHLIB_DIRS	= -L../lib
 SHLIB_LIST	= $(SHLIB_DIRS) 
@@ -136,18 +136,18 @@ TICS_LIST	= $(SHLIB_DIRS)
 RPATH_LIST	= ${libdir}
 RESULTING_SYMS	= 
 VERSIONED_SYMS	= 
-MK_SHARED_LIB	= ${CC} ${CFLAGS} -shared -Wl,-soname,`basename $@ .${REL_VERSION}`.${ABI_VERSION},-stats,-lc -o $@
+MK_SHARED_LIB	= ${CC} ${LDFLAGS} ${CFLAGS} -shared -Wl,-soname,`basename $@ .${REL_VERSION}`.${ABI_VERSION},-stats,-lc -o $@
 
 NCURSES_MAJOR	= 6
-NCURSES_MINOR	= 0
-REL_VERSION	= 6.0
+NCURSES_MINOR	= 1
+REL_VERSION	= 6.1
 ABI_VERSION	= 6
 
-RANLIB		= arm-linux-androideabi-ranlib
+RANLIB		= ranlib
 
 LIBRARIES	=  ../lib/libncurses.a ../lib/libncurses_g.a
 
-LINT		= lint
+LINT		= 
 LINT_OPTS	= 
 LINT_LIBS	= -lncurses 
 
@@ -187,7 +187,7 @@ HEADER_DEPS	= \
 
 TEST_DEPS	= ../lib/libncurses.a
 TEST_ARGS	=  -L../lib -lform -lmenu -lpanel -lncurses   
-TEST_LDFLAGS	=  $(TEST_ARGS)   -L/home/shade/dev/cm/13/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9/lib/gcc/arm-linux-androideabi/4.9.x-google/armv7-a -L/home/shade/dev/cm/13/out/target/product/bacon/system/lib -lc -lselinux -lcutils
+TEST_LDFLAGS	=  $(TEST_ARGS)   
 
 TEST_PROGS = \
 	captoinfo$x \
@@ -195,6 +195,8 @@ TEST_PROGS = \
 	link_test$x \
 	hashmap$x \
 	lib_mvcur$x
+
+LOCAL_LIBDIR	= /mnt/ssd-2/lineage-18.0/external/libncurses/lib
 
 base	 = $(srcdir)/base
 serial	 = $(srcdir)/tty
@@ -204,8 +206,9 @@ wide	 = $(srcdir)/widechar
 win32con = $(srcdir)/win32con
 
 ################################################################################
-all \
-libs ::		$(AUTO_SRC) ../lib $(LIBRARIES)
+all libs ::	$(AUTO_SRC) ../lib $(LIBRARIES)
+
+all libs ::	report_offsets$(BUILD_EXEEXT) 
 
 sources:	$(AUTO_SRC)
 
@@ -225,7 +228,7 @@ init_keytry.h: make_keys$(BUILD_EXEEXT) keys.list
 	./make_keys$(BUILD_EXEEXT) keys.list > $@
 
 keys.list :	$(tinfo)/MKkeys_list.sh
-	AWK=$(AWK) $(SHELL) $(tinfo)/MKkeys_list.sh $(TERMINFO_CAPS) | sort >$@
+	AWK=$(AWK) $(SHELL) $(tinfo)/MKkeys_list.sh $(TERMINFO_CAPS) | LC_ALL=C sort >$@
 
 make_keys$(BUILD_EXEEXT) : \
 		$(tinfo)/make_keys.c \
@@ -236,6 +239,11 @@ make_hash$(BUILD_EXEEXT) : \
 		$(tinfo)/make_hash.c \
 		../include/hashsize.h
 	$(BUILD_CC) -o $@ $(BUILD_CPPFLAGS) $(BUILD_CCFLAGS) $(tinfo)/make_hash.c $(BUILD_LDFLAGS) $(BUILD_LIBS)
+
+report_offsets$(BUILD_EXEEXT) : \
+		$(srcdir)/report_offsets.c
+	$(BUILD_CC) -o $@ $(BUILD_CPPFLAGS) $(BUILD_CCFLAGS) $(srcdir)/report_offsets.c $(BUILD_LDFLAGS) $(BUILD_LIBS)
+	./report_offsets$(BUILD_EXEEXT)
 
 ./expanded.c : $(srcdir)/curses.priv.h $(serial)/MKexpanded.sh
 	$(SHELL) -e $(serial)/MKexpanded.sh "$(CPP)" $(CPPFLAGS) > $@
@@ -266,13 +274,15 @@ tags:
 #	$(ETAGS) *.[ch] */*.[ch]
 
 mostlyclean ::
-	-rm -f core tags TAGS *~ *.bak *.i *.ln *.atac trace
+	-rm -f core tags TAGS *~ *.bak *.i *.ln *.atac
+	-test -d trace || rm -f trace
 	-rm -f $(TEST_PROGS)
 
 clean :: mostlyclean
 	-rm -f $(AUTO_SRC)
 	-rm -f make_keys$(BUILD_EXEEXT)
 	-rm -f make_hash$(BUILD_EXEEXT)
+	-rm -f report_offsets$(BUILD_EXEEXT)
 	-rm -rf .libs *.dSYM *.map
 
 distclean :: clean
@@ -318,9 +328,9 @@ link_test$x : ./link_test.c $(TEST_DEPS) \
 
 # Generated by CF_LIB_RULES
 resulting.map: 
-	sed  -e "s/NCURSES\([WT]\+\)\?_/NCURSES\16_/g" -e "/deprecated in ABI6/d" <  >$@
+	mawk 'BEGIN { skip = 1; last=""; } /deprecated in ABI6/ { next; }{ sub("NCURSES([WT]+)?", "&6"); } { if ( last != "" && ( skip == 0 || $$0 !~ /}/ ) ) { print last; } skip = 0; last = $$0; } END { print last; }' <  >$@
 
-clean::
+distclean::
 	rm -f resulting.map
 
 # generated by mk-0th.awk
@@ -424,6 +434,7 @@ C_SRC = \
 	$(base)/legacy_coding.c \
 	$(base)/lib_dft_fgbg.c \
 	$(tinfo)/lib_print.c \
+	$(base)/new_pair.c \
 	$(base)/resizeterm.c \
 	$(trace)/trace_xnames.c \
 	$(tinfo)/use_screen.c \
@@ -584,6 +595,7 @@ NCURSES_SRC = \
 	$(base)/legacy_coding.c \
 	$(base)/lib_dft_fgbg.c \
 	$(tinfo)/lib_print.c \
+	$(base)/new_pair.c \
 	$(base)/resizeterm.c \
 	$(trace)/trace_xnames.c \
 	$(tinfo)/use_screen.c \
@@ -687,10 +699,10 @@ lint ::
 #  ReLink:        no
 #  DoLinks:       yes
 #  rmSoLocs:      no
-#  ldconfig:      :
-#  overwrite:     no
+#  ldconfig:      /usr/sbin/ldconfig
+#  overwrite:     yes
 #  depend:        ../include/ncurses_cfg.h ./curses.priv.h
-#  host:          arm-unknown-linux-androideabi
+#  host:          x86_64-pc-linux-gnu
 
 NORMAL_OBJS = \
 	../objects/hardscroll$o \
@@ -777,6 +789,7 @@ NORMAL_OBJS = \
 	../objects/legacy_coding$o \
 	../objects/lib_dft_fgbg$o \
 	../objects/lib_print$o \
+	../objects/new_pair$o \
 	../objects/resizeterm$o \
 	../objects/use_screen$o \
 	../objects/use_window$o \
@@ -852,6 +865,9 @@ install.libs \
 install.ncurses :: $(DESTDIR)$(libdir) ../lib/libncurses.a
 	@echo installing ../lib/libncurses.a as $(DESTDIR)$(libdir)/libncurses.a
 	$(INSTALL_DATA) ../lib/libncurses.a $(DESTDIR)$(libdir)/libncurses.a
+	@echo linking libcurses.a to libncurses.a
+	-@rm -f $(DESTDIR)$(libdir)/libcurses.a
+	(cd $(DESTDIR)$(libdir) && $(LN_S) libncurses.a libcurses.a; )
 	$(RANLIB) $(DESTDIR)$(libdir)/libncurses.a
 
 uninstall \
@@ -859,6 +875,8 @@ uninstall.libs \
 uninstall.ncurses ::
 	@echo uninstalling $(DESTDIR)$(libdir)/libncurses.a
 	-@rm -f $(DESTDIR)$(libdir)/libncurses.a
+	@echo linking libcurses.a to libncurses.a
+	-@rm -f $(DESTDIR)$(libdir)/libcurses.a
 
 clean ::
 	-rm -f ../lib/libncurses.a
@@ -872,7 +890,7 @@ mostlyclean::
 #   echo:       yes
 #   subset:     ticlib+termlib+ext_tinfo+base+ext_funcs
 #   crenames:   yes
-#   cxxrenames: 
+#   cxxrenames: yes
 #   traces:     DEBUG
 #   srcdir:     .
 
@@ -926,7 +944,8 @@ mostlyclean::
 
 ../objects/lib_color$o :	$(base)/lib_color.c \
 			$(HEADER_DEPS) \
-			$(INCDIR)/tic.h
+			$(INCDIR)/tic.h \
+			$(srcdir)/new_pair.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../ncurses/$(base)/lib_color.c -o ../objects/lib_color$o
 
 ../objects/lib_colorset$o :	$(base)/lib_colorset.c \
@@ -1225,6 +1244,11 @@ mostlyclean::
 ../objects/lib_print$o :	$(tinfo)/lib_print.c \
 			$(HEADER_DEPS)
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../ncurses/$(tinfo)/lib_print.c -o ../objects/lib_print$o
+
+../objects/new_pair$o :	$(base)/new_pair.c \
+			$(HEADER_DEPS) \
+			$(srcdir)/new_pair.h
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_NORMAL) -c ../ncurses/$(base)/new_pair.c -o ../objects/new_pair$o
 
 ../objects/resizeterm$o :	$(base)/resizeterm.c \
 			$(HEADER_DEPS)
@@ -1540,10 +1564,10 @@ mostlyclean::
 #  ReLink:        no
 #  DoLinks:       yes
 #  rmSoLocs:      no
-#  ldconfig:      :
-#  overwrite:     no
+#  ldconfig:      /usr/sbin/ldconfig
+#  overwrite:     yes
 #  depend:        ../include/ncurses_cfg.h ./curses.priv.h
-#  host:          arm-unknown-linux-androideabi
+#  host:          x86_64-pc-linux-gnu
 
 DEBUG_OBJS = \
 	../obj_g/hardscroll$o \
@@ -1632,6 +1656,7 @@ DEBUG_OBJS = \
 	../obj_g/legacy_coding$o \
 	../obj_g/lib_dft_fgbg$o \
 	../obj_g/lib_print$o \
+	../obj_g/new_pair$o \
 	../obj_g/resizeterm$o \
 	../obj_g/trace_xnames$o \
 	../obj_g/use_screen$o \
@@ -1733,7 +1758,7 @@ mostlyclean::
 #   echo:       yes
 #   subset:     ticlib+termlib+ext_tinfo+base+ext_funcs
 #   crenames:   yes
-#   cxxrenames: 
+#   cxxrenames: yes
 #   traces:     DEBUG
 #   srcdir:     .
 
@@ -1787,7 +1812,8 @@ mostlyclean::
 
 ../obj_g/lib_color$o :	$(base)/lib_color.c \
 			$(HEADER_DEPS) \
-			$(INCDIR)/tic.h
+			$(INCDIR)/tic.h \
+			$(srcdir)/new_pair.h
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../ncurses/$(base)/lib_color.c -o ../obj_g/lib_color$o
 
 ../obj_g/lib_colorset$o :	$(base)/lib_colorset.c \
@@ -2094,6 +2120,11 @@ mostlyclean::
 ../obj_g/lib_print$o :	$(tinfo)/lib_print.c \
 			$(HEADER_DEPS)
 	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../ncurses/$(tinfo)/lib_print.c -o ../obj_g/lib_print$o
+
+../obj_g/new_pair$o :	$(base)/new_pair.c \
+			$(HEADER_DEPS) \
+			$(srcdir)/new_pair.h
+	$(LIBTOOL_COMPILE) $(CC) $(CFLAGS_DEBUG) -c ../ncurses/$(base)/new_pair.c -o ../obj_g/new_pair$o
 
 ../obj_g/resizeterm$o :	$(base)/resizeterm.c \
 			$(HEADER_DEPS)

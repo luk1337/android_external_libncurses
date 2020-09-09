@@ -1,6 +1,6 @@
-# $Id: Makefile.in,v 1.63 2015/08/05 23:15:41 tom Exp $
+# $Id: Makefile.in,v 1.68 2017/12/31 20:34:42 tom Exp $
 ##############################################################################
-# Copyright (c) 1998-2014,2015 Free Software Foundation, Inc.                #
+# Copyright (c) 1998-2016,2017 Free Software Foundation, Inc.                #
 #                                                                            #
 # Permission is hereby granted, free of charge, to any person obtaining a    #
 # copy of this software and associated documentation files (the "Software"), #
@@ -52,13 +52,13 @@ CF_MFLAGS 	=
 DESTDIR		= 
 top_srcdir	= ..
 srcdir		= .
-prefix		= /system
+prefix		= /usr
 exec_prefix	= ${prefix}
 bindir		= ${exec_prefix}/bin
 libdir		= ${exec_prefix}/lib
 datarootdir	= ${prefix}/share
 datadir		= ${datarootdir}
-includesubdir	= /ncurses
+includesubdir	= 
 
 INCLUDEDIR	= $(DESTDIR)$(includedir)$(includesubdir)
 
@@ -72,14 +72,13 @@ INSTALL_PROGRAM	= ${INSTALL}
 INSTALL_SCRIPT	= ${INSTALL}
 INSTALL_DATA	= ${INSTALL} -m 644
 
-PKG_CONFIG_LIBDIR = /usr/lib/x86_64-linux-gnu/pkgconfig
+PKG_CONFIG_LIBDIR = /usr/share/pkgconfig
 
 ################################################################################
-all :	terminfo.tmp
+all \
+sources :: terminfo.tmp 
 
 depend :
-
-sources :: terminfo.tmp 
 
 install : install.data install.libs
 
@@ -96,7 +95,7 @@ install.data :	terminfo.tmp \
 	datadir=${datadir} \
 	ticdir=${ticdir} \
 	source=terminfo.tmp \
-	cross_compiling=yes \
+	cross_compiling=no \
 	$(SHELL) ./run_tic.sh
 	@cd $(srcdir)/tabset && \
 		$(SHELL) -c 'for i in * ; do \
@@ -110,9 +109,24 @@ NCURSES_CONFIG	= ncurses6-config
 install.libs :: $(DESTDIR)$(bindir) ncurses-config
 	$(INSTALL_SCRIPT) ncurses-config $(DESTDIR)$(bindir)/$(NCURSES_CONFIG)
 
-#install.libs :: pc-files $(DESTDIR)$(PKG_CONFIG_LIBDIR)
-#	$(SHELL) -c 'for name in *.pc; do $(INSTALL_DATA) $$name $(DESTDIR)$(PKG_CONFIG_LIBDIR)/$$name; done'
+# some packagers prefer to be able to construct pc-files on servers where
+# pkg-config is not installed.  Work around that by creating the library
+# directory during this rule:
+#install.libs :: pc-files
+#	@$(SHELL) -c 'case "x$(DESTDIR)$(PKG_CONFIG_LIBDIR)" in \
+#		(x/*) \
+#			mkdir -p $(DESTDIR)$(PKG_CONFIG_LIBDIR); \
+#			for name in *.pc; do \
+#				echo installing $$name; \
+#				$(INSTALL_DATA) $$name $(DESTDIR)$(PKG_CONFIG_LIBDIR)/$$name; \
+#			done \
+#			;; \
+#		(*) \
+#			echo "...skip actual install: no destination was given" ; \
+#			;; \
+#		esac'
 
+#all \
 #sources :: pc-files
 #pc-files :
 #	$(SHELL) ./gen-pkgconfig
@@ -131,8 +145,7 @@ run_tic.sed :
 $(DESTDIR)$(bindir) \
 $(DESTDIR)$(libdir) \
 $(DESTDIR)$(datadir) \
-$(DESTDIR)$(tabsetdir) \
-$(DESTDIR)$(PKG_CONFIG_LIBDIR) :
+$(DESTDIR)$(tabsetdir) :
 	mkdir -p $@
 
 uninstall : uninstall.data uninstall.libs
@@ -144,7 +157,14 @@ uninstall.data :
 
 uninstall.libs :
 	-rm -f $(DESTDIR)$(bindir)/$(NCURSES_CONFIG)
-#	$(SHELL) -c 'for name in *.pc; do rm -f $(DESTDIR)$(PKG_CONFIG_LIBDIR)/$$name; done'
+#	@$(SHELL) -c 'case x$(DESTDIR)$(PKG_CONFIG_LIBDIR) in \
+	(x/*) \
+		for name in *.pc; do \
+			echo uninstalling $$name; \
+			rm -f $(DESTDIR)$(PKG_CONFIG_LIBDIR)/$$name; \
+		done \
+		;; \
+	esac'
 
 tags :
 

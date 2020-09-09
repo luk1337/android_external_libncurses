@@ -41,23 +41,23 @@ TOP_MFLAGS =  DESTDIR="$(DESTDIR)" RPATH_LIST="$(RPATH_LIST)"
 
 
 NCURSES_MAJOR	= 6
-NCURSES_MINOR	= 0
-NCURSES_PATCH	= 20150808
+NCURSES_MINOR	= 1
+NCURSES_PATCH	= 20180127
 
 top_srcdir	= .
 srcdir		= .
 
-prefix		= /system
+prefix		= /usr
 exec_prefix	= ${prefix}
 datarootdir	= ${prefix}/share
 
 bindir		= ${exec_prefix}/bin
 ticdir		= /system/etc/terminfo
 includedir	= ${prefix}/include
-includesubdir	= /ncurses
+includesubdir	= 
 libdir		= ${exec_prefix}/lib
 mandir		= ${datarootdir}/man
-pkgdir		= /usr/lib/x86_64-linux-gnu/pkgconfig
+pkgdir		= /usr/share/pkgconfig
 
 include_dir	= ${includedir}${includesubdir}
 
@@ -119,6 +119,7 @@ install ::
 	cd form && ${MAKE} ${TOP_MFLAGS} $@
 	cd test && ${MAKE} ${TOP_MFLAGS} $@
 	cd misc && ${MAKE} ${TOP_MFLAGS} $@
+	cd c++ && ${MAKE} ${TOP_MFLAGS} $@
 
 libs \
 install.libs \
@@ -186,6 +187,16 @@ uninstall.libs \
 install.test \
 uninstall.test ::
 	cd test && ${MAKE} ${TOP_MFLAGS} $@
+
+install.includes \
+uninstall.includes \
+libs \
+lintlib \
+install.libs \
+uninstall.libs \
+install.c++ \
+uninstall.c++ ::
+	cd c++ && ${MAKE} ${TOP_MFLAGS} $@
 
 install.libs uninstall.libs \
 install.data uninstall.data ::
